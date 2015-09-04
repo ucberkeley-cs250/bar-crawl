@@ -1,0 +1,3 @@
+sudo apt-get install python-dev before installing pip celery
+
+
