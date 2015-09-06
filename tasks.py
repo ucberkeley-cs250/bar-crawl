@@ -1,6 +1,7 @@
 from celery import Celery
 
-app = Celery('tasks', backend='rpc://', broker='amqp://localhost')
+#app = Celery('tasks', backend='rpc://', broker='amqp://localhost')
+app = Celery('tasks', backend='rpc://', broker='redis://localhost:6379')
 
 
 def actually_do_stuff(n):
