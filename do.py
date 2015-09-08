@@ -1,19 +1,19 @@
 from tasks import add
 
-result = add.delay(35)
-
+num_pass = 5000
+num_fail = 500
 
 res = []
-for x in range(35):
-    if x < 10:
-	res.append(add.delay(3))
-    res.append(add.delay(33))
+for x in range(num_pass):
+    res.append(add.delay(34))
 
+for x in range(num_fail):
+    res.append(add.delay(3))
 
-for x in range(45):
+for x in range(num_pass+num_fail):
     while not res[x].ready():
         pass
 
 
-for x in range(45):
+for x in range(num_pass+num_fail):
     print(res[x].get())
