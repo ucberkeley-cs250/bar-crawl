@@ -7,7 +7,14 @@
 from fabric.api import *
 
 # list of hosts to run remote commands on
-env.hosts = ['a7', 'boxboro', 'emerald', 'beckton', 'sandy', 'bridge']
+env.hosts = ['a6', 'a7', 'boxboro', 'beckton', 'sandy', 'bridge', 'jktqos', 'jktgz', 'a20']
+
+slow = ['emerald']
+people = ['a5']
+somepeople = ['a19']
+
+env.hosts += slow
+env.hosts += somepeople
 
 def celery_master():
     """ Celery master needs to launch redis, flower """
@@ -15,6 +22,8 @@ def celery_master():
         local('uname -a')
         local('redis-server /nscratch/sagark/celery-distr/redis/redis.conf')
         local('ps -A | grep redis-server')
+        ##### TODO: need to start flower after all the workers join
+        ##### otherwise it doesn't notice them
         local('screen -A -m -d -S flower flower -A tasks --port=8080 &')
 
 @parallel
