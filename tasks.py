@@ -4,7 +4,7 @@ from paths import *
 from fabric.api import *
 from fabric.tasks import execute
 
-app = Celery('tasks', backend='rpc://', broker='redis://a8.millennium.berkeley.edu:6379')
+app = Celery('tasks', backend='rpc://', broker='redis://boxboro.millennium.berkeley.edu:6379')
 
 sample = "./emulator-Top-DefaultCPPConfig +dramsim +max-cycles=100000000 +verbose +loadmem=../riscv-tests/isa/{}.hex none 3>&1 1>&2 2>&3 | /nscratch/sagark/celery-workspace/test-rv/bin/spike-dasm  > ../../{}.out && [ $PIPESTATUS -eq 0 ]"
 

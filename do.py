@@ -101,4 +101,3 @@ z = rs.get()
 print z
 print len(z)
 
-#vcstest.delay("rv64ui-pt-mulhu")
