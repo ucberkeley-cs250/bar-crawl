@@ -13,6 +13,7 @@ from tasks import cpptest
 
 # filenames
 from paths import *
+import os
 
 num_pass = 5000
 num_fail = 500
@@ -63,4 +64,10 @@ for x in range(num_pass+num_fail):
 for x in range(num_pass+num_fail):
     print(res[x].get())
 """
-cpptest.delay("rv64ui-v-ori")
+
+t = os.listdir(distribute_rocket_chip_loc + 'distribute/cpptest/riscv-tests/isa/') 
+run_t = filter(lambda x: x.startswith("rv64ui-p-") and not x.endswith(".dump") and not x.endswith(".hex") and not "-vec-" in x, t)
+
+print run_t
+for x in run_t:
+    cpptest.delay(x)

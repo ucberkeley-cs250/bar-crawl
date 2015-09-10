@@ -39,12 +39,6 @@ app = Celery('tasks', backend='rpc://', broker='redis://a8.millennium.berkeley.e
 
 sample = "./emulator-Top-DefaultCPPConfig +dramsim +max-cycles=100000000 +verbose +loadmem=../riscv-tests/isa/{}.hex none 3>&1 1>&2 2>&3 | /nscratch/sagark/celery-workspace/test-rv/bin/spike-dasm  > ../../{}.out && [ $PIPESTATUS -eq 0 ]"
 
-testname = "rv64ui-v-ori"
-
-
-
-
-
 def test1(test_to_run):
     """ run a test """
     # todo: looks like we can't run this from any other directory, dramsim
@@ -60,4 +54,5 @@ def test1(test_to_run):
 @app.task(bind=True)
 def cpptest(self, testname):
     return execute(test1, testname)
+
 
