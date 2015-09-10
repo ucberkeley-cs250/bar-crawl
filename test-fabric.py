@@ -28,5 +28,10 @@ def celery_master():
 
 @parallel
 def celery_worker():
-    with cd('/nscratch/sagark/celery-distr/celery-test'):
-        run('celery -A tasks worker --loglevel=info')
+    with settings(warn_only=True):
+        with cd('/nscratch/sagark/celery-distr/celery-test'):
+            run('celery -A tasks worker --loglevel=info')
+
+def cleanup():
+    """ Kill flower """
+    local('pkill flower')

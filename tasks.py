@@ -32,3 +32,13 @@ afkjasdlkfjaslkdfjlaksdjflkasdjflkasdjflkasjd fas df asdf asd fa sdf asd fa sdf 
     if x == 3:
         raise Exception("TEST EXCEPTION")
     return q + str(actually_do_stuff(x))
+
+
+
+
+
+
+#def copy_scratch_nscratch():
+
+
+

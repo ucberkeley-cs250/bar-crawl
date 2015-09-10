@@ -1,2 +1,2 @@
 #!/bin/sh
-fab -f fabfile celery_master celery_worker
+fab -f test-fabric.py celery_master celery_worker cleanup
