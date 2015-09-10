@@ -6,6 +6,8 @@ Should be able to just wrap these in @task decorators to make them celery
 tasks eventually. (but then need to move these to tasks.py)
 """
 
+from celery.result import ResultSet
+
 from fabric.api import *
 from fabric.tasks import execute
 
@@ -66,8 +68,17 @@ for x in range(num_pass+num_fail):
 """
 
 t = os.listdir(distribute_rocket_chip_loc + 'distribute/cpptest/riscv-tests/isa/') 
-run_t = filter(lambda x: x.startswith("rv64ui-p-") and not x.endswith(".dump") and not x.endswith(".hex") and not "-vec-" in x, t)
+
+prefixes = ['rv64ui-v-', 'rv64ua-v-', 'rv64ui-p-', 'rv64ui-pt-', 'rv64um-pt-', 'rv64uf-v-', 'rv64uf-p-', 'rv64si-p-', 'rv64um-v-', 'rv64mi-p-', 'rv64ua-pt-', 'rv64uf-pt-']
+
+f1 = lambda x: any([x.startswith(y) for y in prefixes])
+
+run_t = filter(lambda x: f1(x) and not x.endswith(".dump") and not x.endswith(".hex") and not "-vec-" in x, t)
 
 print run_t
+rs = ResultSet([])
 for x in run_t:
-    cpptest.delay(x)
+    rs.add(cpptest.delay(x))
+
+print rs.get()
+
