@@ -53,6 +53,7 @@ def test1(test_to_run):
 
 @app.task(bind=True)
 def cpptest(self, testname):
-    return execute(test1, testname)
+    rval = execute(test1, testname).values()
+    return rval
 
 

@@ -70,10 +70,14 @@ for x in range(num_pass+num_fail):
 t = os.listdir(distribute_rocket_chip_loc + 'distribute/cpptest/riscv-tests/isa/') 
 
 prefixes = ['rv64ui-v-', 'rv64ua-v-', 'rv64ui-p-', 'rv64ui-pt-', 'rv64um-pt-', 'rv64uf-v-', 'rv64uf-p-', 'rv64si-p-', 'rv64um-v-', 'rv64mi-p-', 'rv64ua-pt-', 'rv64uf-pt-']
+suffixes = ['.hex', '.dump']
+mid = ['-vec-']
 
-f1 = lambda x: any([x.startswith(y) for y in prefixes])
+checkpref = lambda x: any([x.startswith(y) for y in prefixes])
+checksuff = lambda x: all([not x.endswith(y) for y in suffixes])
+checkmid = lambda x: all([not y in x for y in mid])
 
-run_t = filter(lambda x: f1(x) and not x.endswith(".dump") and not x.endswith(".hex") and not "-vec-" in x, t)
+run_t = filter(lambda x: checkpref(x) and checksuff(x) and checkmid(x), t)
 
 print run_t
 rs = ResultSet([])

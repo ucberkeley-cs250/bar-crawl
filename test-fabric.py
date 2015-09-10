@@ -7,7 +7,7 @@
 from fabric.api import *
 
 # list of hosts to run remote commands on
-env.hosts = ['a6', 'a7', 'boxboro', 'beckton', 'sandy', 'bridge', 'jktqos', 'jktgz', 'a20']
+env.hosts = ['a6', 'a7', 'a8', 'boxboro', 'beckton', 'sandy', 'bridge', 'jktqos', 'jktgz', 'a20']
 
 slow = ['emerald']
 people = ['a5']
