@@ -11,12 +11,14 @@ from celery.result import ResultSet
 from fabric.api import *
 from fabric.tasks import execute
 
-from tasks import cpptest
+from tasks import cpptest, vcstest
 
 # filenames
 from paths import *
 import os
 
+
+########## TODO: when copying vsim, use cp -Lr to follow dramsim symlink
 
 def build_and_copy_cpp_emu():
     with lcd(distribute_rocket_chip_loc):
@@ -59,7 +61,9 @@ run_t = filter(lambda x: checkpref(x) and checksuff(x) and checkmid(x), t)
 print run_t
 rs = ResultSet([])
 for x in run_t:
-    rs.add(cpptest.delay(x))
+    rs.add(vcstest.delay(x))
 
 print rs.get()
 
+
+#vcstest.delay("rv64ui-pt-mulhu")

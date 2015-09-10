@@ -16,8 +16,6 @@ somepeople = ['a19']
 env.hosts += slow
 env.hosts += somepeople
 
-#env.hosts = ['sandy']
-
 def celery_master():
     """ Celery master needs to launch redis, flower """
     with lcd('/nscratch/sagark/celery-distr/celery-test'):
