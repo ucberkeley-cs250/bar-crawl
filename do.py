@@ -63,7 +63,8 @@ rs = ResultSet([])
 for x in run_t:
     rs.add(vcstest.delay(x))
 
-print rs.get()
-
+z = rs.get()
+print z
+print len(z)
 
 #vcstest.delay("rv64ui-pt-mulhu")
