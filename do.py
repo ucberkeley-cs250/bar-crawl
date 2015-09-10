@@ -9,23 +9,14 @@ tasks eventually. (but then need to move these to tasks.py)
 from fabric.api import *
 from fabric.tasks import execute
 
-from tasks import add
+from tasks import cpptest
+
+# filenames
+from paths import *
 
 num_pass = 5000
 num_fail = 500
 
-
-# location of your code on scratch on the master node
-master_rocket_chip_dir = "/scratch/sagark/rocket-chip"
-# risc-v tools installation. should be on nscratch
-rvenv = "/nscratch/sagark/celery-workspace/test-rv"
-env_RISCV = rvenv
-env_PATH = rvenv+"/bin:$PATH"
-MODEL='Top'
-CONF = 'DefaultCPPConfig'
-
-
-distribute_rocket_chip_loc = "/nscratch/sagark/celery-workspace/"
 
 
 
@@ -42,17 +33,16 @@ def build_and_copy_cpp_emu():
         local('make clean')
         local('make emulator-' + MODEL + '-DefaultCPPConfig')
         # copy c++ emulator binary to nscratch
-        local('cp emulator-' + MODEL + '-DefaultCPPConfig ' + distribute_rocket_chip_loc + 'distribute/cpptest/')
+        local('cp -r ../emulator ' + distribute_rocket_chip_loc + 'distribute/cpptest/')
     with lcd(master_rocket_chip_dir+"/riscv-tools"):
         local('cp -r riscv-tests /nscratch/sagark/celery-workspace/distribute/cpptest/')
 
-
-
-def test():
-    sample = "./emulator-Top-DefaultCPPConfig +dramsim +max-cycles=100000000 +verbose +loadmem=output/rv64ui-v-ori.hex none 3>&1 1>&2 2>&3 | /nscratch/sagark/celery-workspace/test-rv/bin/spike-dasm  > output/rv64ui-v-ori.out && [ $PIPESTATUS -eq 0 ]"
-
-
-execute(build_and_copy_cpp_emu)
+    with lcd(distribute_rocket_chip_loc + "distribute/cpptest/riscv-tests/isa/"), shell_env(RISCV=env_RISCV, PATH=env_PATH, LD_LIBRARY_PATH=env_LD_LIBRARY):
+        # build the tests on master node
+        # faster than building then copying...
+        # and i'm guessing faster than a bunch of distributed writes from 
+        # workers
+        local('make -j32')
 
 
 
@@ -73,3 +63,4 @@ for x in range(num_pass+num_fail):
 for x in range(num_pass+num_fail):
     print(res[x].get())
 """
+cpptest.delay("rv64ui-v-ori")
