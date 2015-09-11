@@ -15,8 +15,10 @@ slow = ['emerald']
 people = ['a5']
 somepeople = ['a19']
 
-env.hosts += slow
+#env.hosts += slow
 env.hosts += somepeople
+
+env.hosts = ['a8', 'a7', 'a6', 'a5']
 
 def celery_master():
     """ Celery master needs to launch redis, flower """
@@ -32,7 +34,10 @@ def celery_master():
 def celery_worker():
     with settings(warn_only=True):
         with cd('/nscratch/sagark/celery-distr/celery-test'):
-            run('celery -A tasks worker --loglevel=info')
+            # we should use -Ofair
+            # see http://docs.celeryproject.org/en/latest/userguide/optimizing.html#prefork-pool-prefetch-settings
+            # some tests may run for a long time
+            run('celery -A tasks worker --loglevel=fatal -Ofair -c 12')
 
 def cleanup():
     """ Kill flower """

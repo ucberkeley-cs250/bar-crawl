@@ -8,6 +8,10 @@ app = Celery('tasks', backend='rpc://', broker='redis://boxboro.millennium.berke
 
 sample = "./emulator-Top-DefaultCPPConfig +dramsim +max-cycles=100000000 +verbose +loadmem=../riscv-tests/isa/{}.hex none 3>&1 1>&2 2>&3 | /nscratch/sagark/celery-workspace/test-rv/bin/spike-dasm  > ../../{}.out && [ $PIPESTATUS -eq 0 ]"
 
+#app.conf.CELERY_ACKS_LATE=True
+#app.conf.CELERYD_PREFETCH_MULTIPLIER=10
+
+
 def test1(test_to_run):
     """ run a test """
     # todo: looks like we can't run this from any other directory, dramsim

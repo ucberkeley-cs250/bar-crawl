@@ -93,6 +93,9 @@ checkmid = lambda x: all([not y in x for y in mid])
 run_t = filter(lambda x: checkpref(x) and checksuff(x) and checkmid(x), t)
 
 print run_t
+import random
+random.shuffle(run_t)
+
 rs = ResultSet([])
 for x in run_t:
     rs.add(vcstest.delay(x))
