@@ -7,18 +7,21 @@
 from fabric.api import *
 
 # list of hosts to run remote commands on
-env.hosts = ['a6', 'a7', 'a8', 'boxboro', 'sandy', 'bridge', 'jktqos', 'jktgz', 'a20']
+env.hosts = ['a5', 'a6', 'a7', 'a8', 'boxboro', 'sandy', 'bridge', 'jktqos', 'jktgz', 'a20', 'a19', 'a8', 'a8', 'a8']
 
 
 no_ecad = ['beckton']
 slow = ['emerald']
-people = ['a5']
-somepeople = ['a19']
 
 #env.hosts += slow
-env.hosts += somepeople
 
-env.hosts = ['a8', 'a7', 'a6', 'a5']
+#env.hosts = ['a8', 'a7', 'a6', 'a5']
+
+#env.hosts = ['a8']
+
+env.hosts=['a7', 'a8', 'a5', 'a6']
+
+#env.hosts=['a7', ]
 
 def celery_master():
     """ Celery master needs to launch redis, flower """
@@ -30,15 +33,34 @@ def celery_master():
         ##### otherwise it doesn't notice them
         local('screen -A -m -d -S flower flower -A tasks --port=8080 &')
 
-@parallel
+import random
+import string
+
+#@parallel
 def celery_worker():
     with settings(warn_only=True):
         with cd('/nscratch/sagark/celery-distr/celery-test'):
             # we should use -Ofair
             # see http://docs.celeryproject.org/en/latest/userguide/optimizing.html#prefork-pool-prefetch-settings
             # some tests may run for a long time
-            run('celery -A tasks worker --loglevel=fatal -Ofair -c 12')
+            run('celery multi start 1.%h 2.%h 3.%h 4.%h -A tasks --loglevel=info -Ofair -P processes -c 6')
+            #run('celery -A tasks worker --loglevel=info -Ofair -n 2asdf.%h --detach')
+
+
+
+def waiter():
+    raw_input("Press Enter to continue...")
+
+
+@parallel
+def celery_shutdown():
+    with settings(warn_only=True):
+        with cd('/nscratch/sagark/celery-distr/celery-test'):
+            run('celery multi kill 1.%h 2.%h 3.%h 4.%h')
+            run('pkill python')
+            run('pkill celery')
 
 def cleanup():
     """ Kill flower """
-    local('pkill flower')
+    #local('pkill flower')
+    pass
