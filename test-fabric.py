@@ -43,7 +43,7 @@ def celery_worker():
             # we should use -Ofair
             # see http://docs.celeryproject.org/en/latest/userguide/optimizing.html#prefork-pool-prefetch-settings
             # some tests may run for a long time
-            run('celery multi start 1.%h 2.%h 3.%h 4.%h -A tasks --loglevel=info -Ofair -P processes -c 6')
+            run('celery multi start 1.%h 2.%h -A tasks --loglevel=info -Ofair -P processes -c 6')
             #run('celery -A tasks worker --loglevel=info -Ofair -n 2asdf.%h --detach')
 
 
@@ -62,5 +62,5 @@ def celery_shutdown():
 
 def cleanup():
     """ Kill flower """
-    #local('pkill flower')
+    local('pkill flower')
     pass
