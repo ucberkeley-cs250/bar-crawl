@@ -7,21 +7,15 @@
 from fabric.api import *
 
 # list of hosts to run remote commands on
-env.hosts = ['a5', 'a6', 'a7', 'a8', 'boxboro', 'sandy', 'bridge', 'jktqos', 'jktgz', 'a20', 'a19', 'a8', 'a8', 'a8']
+fast = ['a7', 'a8', 'a5', 'a6']
+med = ['boxboro', 'sandy', 'bridge', 'jktqos', 'jktgz', 'a20', 'a19']
 
-
+very_slow = ['emerald']
 no_ecad = ['beckton']
-slow = ['emerald']
 
-#env.hosts += slow
-
-#env.hosts = ['a8', 'a7', 'a6', 'a5']
-
-#env.hosts = ['a8']
-
-env.hosts=['a7', 'a8', 'a5', 'a6']
-
-#env.hosts=['a7', ]
+#env.hosts = fast #+ med
+#env.hosts = ['f1']
+env.hosts = fast
 
 def celery_master():
     """ Celery master needs to launch redis, flower """
@@ -43,8 +37,11 @@ def celery_worker():
             # we should use -Ofair
             # see http://docs.celeryproject.org/en/latest/userguide/optimizing.html#prefork-pool-prefetch-settings
             # some tests may run for a long time
-            run('celery multi start 1.%h 2.%h -A tasks --loglevel=info -Ofair -P processes -c 6')
-            #run('celery -A tasks worker --loglevel=info -Ofair -n 2asdf.%h --detach')
+            if env.host_string in fast:
+                run('celery multi start 1.%h 2.%h 3.%h 4.%h 5.%h 6.%h -A tasks --loglevel=info -Ofair -P processes -c 2')
+            else:
+                run('celery multi start 1.%h -A tasks --loglevel=info -Ofair -P processes -c 1')
+
 
 
 
