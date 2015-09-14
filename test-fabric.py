@@ -33,12 +33,16 @@ import string
 #@parallel
 def celery_worker():
     with settings(warn_only=True):
+        # distribute data to the node
+        run('mkdir -p /scratch/sagark/celery-transient')
+        ############### WARN
+        #run('cp -r /nscratch/sagark/celery-workspace/distribute /scratch/sagark/celery-transient/')
         with cd('/nscratch/sagark/celery-distr/celery-test'):
             # we should use -Ofair
             # see http://docs.celeryproject.org/en/latest/userguide/optimizing.html#prefork-pool-prefetch-settings
             # some tests may run for a long time
             if env.host_string in fast:
-                run('celery multi start 1.%h 2.%h 3.%h 4.%h 5.%h 6.%h -A tasks --loglevel=info -Ofair -P processes -c 2')
+                run('celery multi start 1.%h -A tasks --loglevel=info -Ofair -P processes -c 12')
             else:
                 run('celery multi start 1.%h -A tasks --loglevel=info -Ofair -P processes -c 1')
 
