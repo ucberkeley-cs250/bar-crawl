@@ -34,9 +34,6 @@ import string
 def celery_worker():
     with settings(warn_only=True):
         # distribute data to the node
-        run('mkdir -p /scratch/sagark/celery-transient')
-        ############### WARN
-        #run('cp -r /nscratch/sagark/celery-workspace/distribute /scratch/sagark/celery-transient/')
         with cd('/nscratch/sagark/celery-distr/celery-test'):
             # we should use -Ofair
             # see http://docs.celeryproject.org/en/latest/userguide/optimizing.html#prefork-pool-prefetch-settings
