@@ -55,9 +55,6 @@ def build_riscv_tests():
         local('cd riscv-tests && git submodule update --init')
         local('cd riscv-tests/isa && make -j32')
 
-
-
-
 ########## Move to tasks.py
 def compile_and_copy(design_name):
     design_dir = '/scratch/sagark/celery-temp/' + design_name
@@ -88,37 +85,7 @@ do_jackhammer()
 build_riscv_tests()
 compile_and_copy(designs[0])
 
-
-
-########## TODO: when copying vsim, use cp -Lr to follow dramsim symlink
-
-def build_and_copy_cpp_emu():
-    with lcd(distribute_rocket_chip_loc):
-        ## cleanup any existing distribute directory
-        local('rm -rf distribute')
-        ## create directories as necessary (separate commands for clarity)
-        local('mkdir distribute')
-        # should probably add another level of hierarchy: distribute/designname/cpptest
-        local('mkdir distribute/cpptest')
-    with lcd(master_rocket_chip_dir+"/emulator"), shell_env(**shell_env_args):
-        local('make clean')
-        local('make emulator-' + MODEL + '-DefaultCPPConfig')
-        # copy c++ emulator binary to nscratch
-        local('cp -r ../emulator ' + distribute_rocket_chip_loc + 'distribute/cpptest/')
-    with lcd(master_rocket_chip_dir+"/riscv-tools"):
-        local('cp -r riscv-tests /nscratch/sagark/celery-workspace/distribute/cpptest/')
-
-    with lcd(distribute_rocket_chip_loc + "distribute/cpptest/riscv-tests/isa/"), shell_env(RISCV=env_RISCV, PATH=env_PATH, LD_LIBRARY_PATH=env_LD_LIBRARY):
-        # build the tests on master node
-        # faster than building then copying...
-        # and i'm guessing faster than a bunch of distributed writes from 
-        # workers
-        local('make -j32')
-
-
-
-
-t = os.listdir(distribute_rocket_chip_loc + 'distribute/cpptest/riscv-tests/isa/') 
+t = os.listdir(distribute_rocket_chip_loc + '/riscv-tests/isa/') 
 
 prefixes = ['rv64ui-v-', 'rv64ua-v-', 'rv64ui-p-', 'rv64ui-pt-', 'rv64um-pt-', 'rv64uf-v-', 'rv64uf-p-', 'rv64si-p-', 'rv64um-v-', 'rv64mi-p-', 'rv64ua-pt-', 'rv64uf-pt-']
 suffixes = ['.hex', '.dump']
