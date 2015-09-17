@@ -65,10 +65,10 @@ def compile_and_copy(design_name):
     vsim_emu_name = 'simv-' + MODEL + '-' + design_name
     with lcd(rc_dir + '/emulator'), shell_env(**shell_env_args_conf):
         local('make ' + cpp_emu_name)
-        local('cp -r ../emulator ' + distribute_rocket_chip_loc + '/' + design_name + '/emulator/')
+        local('cp -Lr ../emulator ' + distribute_rocket_chip_loc + '/' + design_name + '/emulator/')
     with lcd(rc_dir + '/vsim'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
         local('make ' + vsim_emu_name)
-        local('cp -r ../vsim ' + distribute_rocket_chip_loc + '/' + design_name + '/vsim/')
+        local('cp -Lr ../vsim ' + distribute_rocket_chip_loc + '/' + design_name + '/vsim/')
 
 
 do_jackhammer()
