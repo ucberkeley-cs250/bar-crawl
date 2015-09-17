@@ -10,7 +10,7 @@ from celery.result import ResultSet
 
 from fabric.api import *
 from fabric.tasks import execute
-
+from copy import copy
 from tasks import cpptest, vcstest
 
 # filenames
@@ -45,9 +45,34 @@ def do_jackhammer():
         for y in tests:
             local('mkdir -p ' + distribute_rocket_chip_loc + '/' + x + '/' + y)
 
+########## Move to tasks.py
+def compile_and_copy(design_name):
+    design_dir = '/scratch/sagark/celery-temp/' + design_name
+    local('mkdir -p ' + design_dir)
+    with lcd(design_dir):
+        local('git clone ' + repo_location)
+    rc_dir = design_dir + '/rocket-chip'
+    with lcd(rc_dir):
+        local('git submodule update --init')
+        # copy designs scala file
+        configs_dir = 'src/main/scala/config'
+        local('mkdir -p ' + configs_dir)
+        local('cp ' + distribute_rocket_chip_loc + '/' + CONF + '.scala ' + configs_dir + '/')
+
+    shell_env_args_conf = copy(shell_env_args)
+    shell_env_args_conf['CONFIG'] = design_name
+    cpp_emu_name = 'emulator-' + MODEL + '-' + design_name
+    vsim_emu_name = 'simv-' + MODEL + '-' + design_name
+    with lcd(rc_dir + '/emulator'), shell_env(**shell_env_args_conf):
+        local('make ' + cpp_emu_name)
+        local('cp -r ../emulator ' + distribute_rocket_chip_loc + '/' + design_name + '/emulator/')
+    with lcd(rc_dir + '/vsim'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
+        local('make ' + vsim_emu_name)
+        local('cp -r ../vsim ' + distribute_rocket_chip_loc + '/' + design_name + '/vsim/')
+
 
 do_jackhammer()
-
+compile_and_copy(designs[0])
 
 
 

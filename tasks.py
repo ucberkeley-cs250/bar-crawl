@@ -3,6 +3,7 @@ from celery import Celery
 from paths import *
 from fabric.api import *
 from fabric.tasks import execute
+from copy import copy
 
 app = Celery('tasks', backend='rpc://', broker='redis://boxboro.millennium.berkeley.edu:6379')
 
@@ -10,6 +11,8 @@ sample = "./emulator-Top-DefaultCPPConfig +dramsim +max-cycles=100000000 +verbos
 
 #app.conf.CELERY_ACKS_LATE=True
 #app.conf.CELERYD_PREFETCH_MULTIPLIER=10
+
+
 
 
 def test1(test_to_run):

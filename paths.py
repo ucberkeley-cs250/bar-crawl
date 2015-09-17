@@ -50,8 +50,11 @@ env_LD_LIBRARY = rvenv+"/lib"
 MODEL='Top'
 CONF = 'HwachaVLSIConfig'
 
+repo_location = 'git@github.com:sagark/rocket-chip'
 
 distribute_rocket_chip_loc = "/nscratch/sagark/celery-workspace/distribute"
+
+vlsi_bashrc = '/ecad/tools/vlsi.bashrc'
 
 shell_env_args = {
         'RISCV': env_RISCV,
