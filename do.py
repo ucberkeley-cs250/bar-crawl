@@ -45,6 +45,19 @@ def do_jackhammer():
         for y in tests:
             local('mkdir -p ' + distribute_rocket_chip_loc + '/' + x + '/' + y)
 
+def build_riscv_tests():
+    with lcd(distribute_rocket_chip_loc), shell_env(**shell_env_args):
+        # build the tests on master node
+        # faster than building then copying...
+        # and i'm guessing faster than a bunch of distributed writes from 
+        # workers
+        local('git clone git@github.com:ucb-bar/riscv-tests')
+        local('cd riscv-tests && git submodule update --init')
+        local('cd riscv-tests/isa && make -j32')
+
+
+
+
 ########## Move to tasks.py
 def compile_and_copy(design_name):
     design_dir = '/scratch/sagark/celery-temp/' + design_name
@@ -72,8 +85,8 @@ def compile_and_copy(design_name):
 
 
 do_jackhammer()
+build_riscv_tests()
 compile_and_copy(designs[0])
-
 
 
 
