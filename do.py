@@ -11,7 +11,7 @@ from celery.result import ResultSet
 from fabric.api import *
 from fabric.tasks import execute
 from copy import copy
-from tasks import cpptest, vcstest
+from tasks import cpptest, vcstest, compile_and_copy
 
 # filenames
 from paths import *
@@ -46,7 +46,7 @@ def do_jackhammer():
             local('mkdir -p ' + distribute_rocket_chip_loc + '/' + x + '/' + y)
 
 def build_riscv_tests():
-    with lcd(distribute_rocket_chip_loc), shell_env(**shell_env_args):
+    with lcd(distribute_rocket_chip_loc), shell_env(**shell_env_args), settings(warn_only=True):
         # build the tests on master node
         # faster than building then copying...
         # and i'm guessing faster than a bunch of distributed writes from 
@@ -55,36 +55,13 @@ def build_riscv_tests():
         local('cd riscv-tests && git submodule update --init')
         local('cd riscv-tests/isa && make -j32')
 
-########## Move to tasks.py
-def compile_and_copy(design_name):
-    design_dir = '/scratch/sagark/celery-temp/' + design_name
-    local('mkdir -p ' + design_dir)
-    with lcd(design_dir):
-        local('git clone ' + repo_location)
-    rc_dir = design_dir + '/rocket-chip'
-    with lcd(rc_dir):
-        local('git submodule update --init')
-        # copy designs scala file
-        configs_dir = 'src/main/scala/config'
-        local('mkdir -p ' + configs_dir)
-        local('cp ' + distribute_rocket_chip_loc + '/' + CONF + '.scala ' + configs_dir + '/')
-
-    shell_env_args_conf = copy(shell_env_args)
-    shell_env_args_conf['CONFIG'] = design_name
-    cpp_emu_name = 'emulator-' + MODEL + '-' + design_name
-    vsim_emu_name = 'simv-' + MODEL + '-' + design_name
-    with lcd(rc_dir + '/emulator'), shell_env(**shell_env_args_conf):
-        local('make ' + cpp_emu_name)
-        local('cp -Lr ../emulator ' + distribute_rocket_chip_loc + '/' + design_name + '/emulator/')
-    with lcd(rc_dir + '/vsim'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
-        local('make ' + vsim_emu_name)
-        local('cp -Lr ../vsim ' + distribute_rocket_chip_loc + '/' + design_name + '/vsim/')
-
-
 do_jackhammer()
 build_riscv_tests()
-compile_and_copy(designs[0])
+#compile_and_copy(designs[0])
 
+
+
+#### TODO should get the list of tests from Testing.scala
 t = os.listdir(distribute_rocket_chip_loc + '/riscv-tests/isa/') 
 
 prefixes = ['rv64ui-v-', 'rv64ua-v-', 'rv64ui-p-', 'rv64ui-pt-', 'rv64um-pt-', 'rv64uf-v-', 'rv64uf-p-', 'rv64si-p-', 'rv64um-v-', 'rv64mi-p-', 'rv64ua-pt-', 'rv64uf-pt-']
@@ -125,7 +102,6 @@ mid += ["rv64ui-p-amoadd_d",
 "rv64ui-pt-example",
 "rv64ui-v-example"]
 
-"""
 checkpref = lambda x: any([x.startswith(y) for y in prefixes])
 checksuff = lambda x: all([not x.endswith(y) for y in suffixes])
 checkmid = lambda x: all([not y in x for y in mid])
@@ -133,9 +109,14 @@ checkmid = lambda x: all([not y in x for y in mid])
 run_t = filter(lambda x: checkpref(x) and checksuff(x) and checkmid(x), t)
 
 print run_t
-import random
-random.shuffle(run_t)
 
+compiles = ResultSet([])
+for x in designs:
+    compiles.add(compile_and_copy.delay(x))
+
+y = compiles.get()
+
+"""
 rs = ResultSet([])
 for x in run_t:
     rs.add(vcstest.delay(x))
