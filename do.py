@@ -17,6 +17,40 @@ from tasks import cpptest, vcstest
 from paths import *
 import os
 
+# populated by do_jackhammer
+designs = []
+
+def do_jackhammer():
+    with lcd(master_rocket_chip_dir + '/jackhammer'), shell_env(**shell_env_args):
+        local('make')
+    designs_scala = master_rocket_chip_dir + '/src/main/scala/config/' + CONF + '.scala'
+
+    local('cp ' + designs_scala + ' ' + distribute_rocket_chip_loc)
+
+    ## GET/populate list of design names
+    a = open(designs_scala, 'r')
+    b = a.readlines()
+    a.close()
+
+    for x in b:
+        linesplit = x.split(' ')
+        if linesplit[0] == 'class':
+            designs.append(linesplit[1])
+
+    print("Detected Designs:")
+    print(designs)
+   
+    #create a directory in distribute for each design, test
+    for x in designs:
+        for y in tests:
+            local('mkdir -p ' + distribute_rocket_chip_loc + '/' + x + '/' + y)
+
+
+do_jackhammer()
+
+
+
+
 
 ########## TODO: when copying vsim, use cp -Lr to follow dramsim symlink
 
@@ -28,7 +62,7 @@ def build_and_copy_cpp_emu():
         local('mkdir distribute')
         # should probably add another level of hierarchy: distribute/designname/cpptest
         local('mkdir distribute/cpptest')
-    with lcd(master_rocket_chip_dir+"/emulator"), shell_env(RISCV=env_RISCV, PATH=env_PATH):
+    with lcd(master_rocket_chip_dir+"/emulator"), shell_env(**shell_env_args):
         local('make clean')
         local('make emulator-' + MODEL + '-DefaultCPPConfig')
         # copy c++ emulator binary to nscratch
@@ -86,6 +120,7 @@ mid += ["rv64ui-p-amoadd_d",
 "rv64ui-pt-example",
 "rv64ui-v-example"]
 
+"""
 checkpref = lambda x: any([x.startswith(y) for y in prefixes])
 checksuff = lambda x: all([not x.endswith(y) for y in suffixes])
 checkmid = lambda x: all([not y in x for y in mid])
@@ -103,4 +138,4 @@ for x in run_t:
 z = rs.get()
 print z
 print len(z)
-
+"""
