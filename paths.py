@@ -40,7 +40,7 @@ exec flow:
 master_rocket_chip_dir = "/scratch/sagark/hwacha-celery/rocket-chip"
 
 # risc-v tools installation. should be on nscratch
-rvenv = "/nscratch/sagark/celery-workspace/test-rv"
+rvenv = "/nscratch/sagark/celery-workspace/hwacha-rv"
 env_RISCV = rvenv
 env_PATH = rvenv+"/bin:$PATH"
 env_LD_LIBRARY = rvenv+"/lib"
