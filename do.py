@@ -62,51 +62,9 @@ build_riscv_tests()
 
 
 #### TODO should get the list of tests from Testing.scala
-t = os.listdir(distribute_rocket_chip_loc + '/esp-tests/isa/') 
-
-prefixes = ['rv64ui-v-', 'rv64ua-v-', 'rv64ui-p-', 'rv64ui-pt-', 'rv64um-pt-', 'rv64uf-v-', 'rv64uf-p-', 'rv64si-p-', 'rv64um-v-', 'rv64mi-p-', 'rv64ua-pt-', 'rv64uf-pt-']
-suffixes = ['.hex', '.dump']
-mid = ['-vec-']
-mid += ["rv64ui-p-amoadd_d",
-"rv64ui-p-amoadd_w",
-"rv64ui-p-amoand_d",
-"rv64ui-p-amoand_w",
-"rv64ui-p-amomax_d",
-"rv64ui-p-amomaxu_d",
-"rv64ui-p-amomaxu_w",
-"rv64ui-p-amomax_w",
-"rv64ui-p-amomin_d",
-"rv64ui-p-amominu_d",
-"rv64ui-p-amominu_w",
-"rv64ui-p-amomin_w",
-"rv64ui-p-amoor_d",
-"rv64ui-p-amoor_w",
-"rv64ui-p-amoswap_d",
-"rv64ui-p-amoswap_w",
-"rv64ui-p-amoxor_d",
-"rv64ui-p-amoxor_w",
-"rv64ui-p-div",
-"rv64ui-p-divu",
-"rv64ui-p-divuw",
-"rv64ui-p-divw",
-"rv64ui-p-example",
-"rv64ui-p-mulh",
-"rv64ui-p-mulhsu",
-"rv64ui-p-mulhu",
-"rv64ui-p-mul",
-"rv64ui-p-mulw",
-"rv64ui-p-rem",
-"rv64ui-p-remu",
-"rv64ui-p-remuw",
-"rv64ui-p-remw",
-"rv64ui-pt-example",
-"rv64ui-v-example"]
-
-checkpref = lambda x: any([x.startswith(y) for y in prefixes])
-checksuff = lambda x: all([not x.endswith(y) for y in suffixes])
-checkmid = lambda x: all([not y in x for y in mid])
-
-run_t = filter(lambda x: checkpref(x) and checksuff(x) and checkmid(x), t)
+tfile = open('testnames', 'r')
+run_t = map(lambda x: x.strip(), tfile.readlines())
+tfile.close()
 
 print run_t
 
