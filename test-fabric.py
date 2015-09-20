@@ -39,9 +39,9 @@ def celery_worker():
             # see http://docs.celeryproject.org/en/latest/userguide/optimizing.html#prefork-pool-prefetch-settings
             # some tests may run for a long time
             if env.host_string in fast:
-                run('celery multi start 1.%h -A tasks --loglevel=info -Ofair -P processes -c 12')
+                run('celery multi start 1.%h -A tasks --purge --loglevel=info -Ofair -P processes -c 12')
             else:
-                run('celery multi start 1.%h -A tasks --loglevel=info -Ofair -P processes -c 1')
+                run('celery multi start 1.%h -A tasks --purge --loglevel=info -Ofair -P processes -c 1')
 
 
 
