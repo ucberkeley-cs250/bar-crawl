@@ -51,6 +51,8 @@ MODEL='Top'
 CONF = 'HwachaVLSIConfig'
 
 repo_location = 'git@github.com:sagark/rocket-chip'
+tests_location = 'git@github.com:ucb-bar/esp-tests.git'
+
 
 distribute_rocket_chip_loc = "/nscratch/sagark/celery-workspace/distribute"
 

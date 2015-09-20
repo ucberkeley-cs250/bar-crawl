@@ -51,7 +51,7 @@ def build_riscv_tests():
         # faster than building then copying...
         # and i'm guessing faster than a bunch of distributed writes from 
         # workers
-        local('git clone git@github.com:ucb-bar/riscv-tests')
+        local('git clone ' + tests_location)
         local('cd riscv-tests && git submodule update --init')
         local('cd riscv-tests/isa && make -j32')
 
@@ -116,12 +116,12 @@ for x in designs:
 
 y = compiles.get()
 
-"""
+
 rs = ResultSet([])
-for x in run_t:
-    rs.add(vcstest.delay(x))
+for y in designs:
+    for x in run_t:
+        rs.add(vcstest.delay(y, x))
 
 z = rs.get()
 print z
 print len(z)
-"""
