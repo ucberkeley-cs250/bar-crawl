@@ -52,8 +52,8 @@ def build_riscv_tests():
         # and i'm guessing faster than a bunch of distributed writes from 
         # workers
         local('git clone ' + tests_location)
-        local('cd riscv-tests && git submodule update --init')
-        local('cd riscv-tests/isa && make -j32')
+        local('cd esp-tests && git submodule update --init')
+        local('cd esp-tests/isa && make -j32')
 
 do_jackhammer()
 build_riscv_tests()
@@ -62,7 +62,7 @@ build_riscv_tests()
 
 
 #### TODO should get the list of tests from Testing.scala
-t = os.listdir(distribute_rocket_chip_loc + '/riscv-tests/isa/') 
+t = os.listdir(distribute_rocket_chip_loc + '/esp-tests/isa/') 
 
 prefixes = ['rv64ui-v-', 'rv64ua-v-', 'rv64ui-p-', 'rv64ui-pt-', 'rv64um-pt-', 'rv64uf-v-', 'rv64uf-p-', 'rv64si-p-', 'rv64um-v-', 'rv64mi-p-', 'rv64ua-pt-', 'rv64uf-pt-']
 suffixes = ['.hex', '.dump']
