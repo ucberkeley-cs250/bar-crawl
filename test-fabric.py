@@ -5,6 +5,7 @@
 ## but issues when laptop loses net
 
 from fabric.api import *
+import time
 
 # list of hosts to run remote commands on
 fast = ['a7', 'a8', 'a5', 'a6']
@@ -25,7 +26,7 @@ def celery_master():
         local('ps -A | grep redis-server')
         ##### TODO: need to start flower after all the workers join
         ##### otherwise it doesn't notice them
-        local('screen -A -m -d -S flower flower -A tasks --port=8080 &')
+        #local('screen -A -m -d -S flower flower -A tasks --port=8080 &')
 
 import random
 import string
@@ -44,8 +45,12 @@ def celery_worker():
                 run('celery multi start 1.%h -A tasks --purge --loglevel=info -Ofair -P processes -c 1')
 
 
-
-
+def celery_flower():
+    with lcd('/nscratch/sagark/celery-distr/celery-test'):
+        print("waiting 5s for workers to settle")
+        time.sleep(5)
+        local('screen -A -m -d -S flower flower -A tasks --port=8080 &')
+    
 def waiter():
     raw_input("Press Enter to continue...")
 
