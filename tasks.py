@@ -1,5 +1,6 @@
 
 from celery import Celery
+from celery.exceptions import SoftTimeLimitExceeded
 from paths import *
 from fabric.api import *
 from fabric.tasks import execute
@@ -73,9 +74,14 @@ def test2(design_name, test_to_run):
             return "FAIL"
         return "PASS"
 
-@app.task(bind=True)
+# 5 min timeout per test
+@app.task(bind=True, soft_time_limit=300)
 def vcstest(self, design_name, testname):
-    rval = execute(test2, design_name, testname).values()
-    return rval
+    try:
+        rval = execute(test2, design_name, testname).values()
+        return rval
+    except SoftTimeLimitExceeded:
+        return "FAILED RAN OUT OF TIME"
+
 
 
