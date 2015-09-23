@@ -57,7 +57,6 @@ def build_riscv_tests():
 
 do_jackhammer()
 build_riscv_tests()
-#compile_and_copy(designs[0])
 
 
 

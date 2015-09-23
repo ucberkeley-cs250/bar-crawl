@@ -35,6 +35,7 @@ exec flow:
 
 """
 
+from fabric.api import *
 
 # location of your code on scratch on the master node
 master_rocket_chip_dir = "/scratch/sagark/hwacha-celery/rocket-chip"
@@ -64,4 +65,22 @@ shell_env_args = {
         'LD_LIBRARY_PATH': env_LD_LIBRARY
 }
 
-tests = ['emulator', 'vsim']
+tests = ['emulator', 'vsim', 'vcs-sim-rtl']
+
+def local_cap(cmd):
+    return local(cmd, capture=True)
+
+def make_log():
+    return {'stdout': '', 'stderr': ''}
+
+def gen_logged_local(logf):
+    """ Generate a version of fabric's local that logs to logf.
+
+    An empty log can be created with make_log above.
+    """
+    def l2(cmd):
+        r = local(cmd, capture=True) 
+        logf['stdout'] += '\n' + cmd + '\n'
+        logf['stdout'] += r.stdout + '\n'
+        logf['stderr'] += '\n' + r.stderr + '\n'
+    return l2

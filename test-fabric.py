@@ -49,7 +49,7 @@ def celery_flower():
     with lcd('/nscratch/sagark/celery-distr/celery-test'):
         print("waiting 5s for workers to settle")
         time.sleep(5)
-        local('screen -A -m -d -S flower flower -A tasks --port=8080 &')
+        local('screen -A -m -d -S flower flower -A tasks --port=8080 --persistent &')
     
 def waiter():
     raw_input("Press Enter to continue...")

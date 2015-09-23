@@ -16,32 +16,40 @@ sample = "./emulator-Top-DefaultCPPConfig +dramsim +max-cycles=100000000 +verbos
 @app.task(bind=True)
 def compile_and_copy(self, design_name):
     # remove old results for that design if they exist
+    log = make_log()
+    local_logged = gen_logged_local(log)
     design_dir = '/scratch/sagark/celery-temp/' + design_name
-    local('rm -rf ' + design_dir)
-    local('mkdir -p ' + design_dir)
+    local_logged('rm -rf ' + design_dir)
+    local_logged('mkdir -p ' + design_dir)
     with lcd(design_dir):
-        local('git clone ' + repo_location)
+        local_logged('git clone ' + repo_location)
     rc_dir = design_dir + '/rocket-chip'
     with lcd(rc_dir):
-        local('git submodule update --init')
+        local_logged('git submodule update --init')
         # copy designs scala file
         configs_dir = 'src/main/scala/config'
-        local('mkdir -p ' + configs_dir)
-        local('cp ' + distribute_rocket_chip_loc + '/' + CONF + '.scala ' + configs_dir + '/')
+        local_logged('mkdir -p ' + configs_dir)
+        local_logged('cp ' + distribute_rocket_chip_loc + '/' + CONF + '.scala ' + configs_dir + '/')
+
+    with lcd(rc_dir + '/vlsi'):
+        local_logged('git submodule update --init --recursive')
 
     shell_env_args_conf = copy(shell_env_args)
     shell_env_args_conf['CONFIG'] = design_name
     cpp_emu_name = 'emulator-' + MODEL + '-' + design_name
     vsim_emu_name = 'simv-' + MODEL + '-' + design_name
     with lcd(rc_dir + '/emulator'), shell_env(**shell_env_args_conf):
-        local('make ' + cpp_emu_name)
-        local('cp -Lr ../emulator ' + distribute_rocket_chip_loc + '/' + design_name + '/emulator/')
+        local_logged('make ' + cpp_emu_name)
+        local_logged('cp -Lr ../emulator ' + distribute_rocket_chip_loc + '/' + design_name + '/emulator/')
     with lcd(rc_dir + '/vsim'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
-        local('make ' + vsim_emu_name)
-        local('cp -Lr ../vsim ' + distribute_rocket_chip_loc + '/' + design_name + '/vsim/')
+        local_logged('make ' + vsim_emu_name)
+        local_logged('cp -Lr ../vsim ' + distribute_rocket_chip_loc + '/' + design_name + '/vsim/')
     with lcd(distribute_rocket_chip_loc + '/' + design_name):
-        local('cp -r emulator/emulator/dramsim2_ini vsim/vsim/')
-    return "PASS"
+        local_logged('cp -r emulator/emulator/dramsim2_ini vsim/vsim/')
+    with lcd(rc_dir + '/vlsi/vcs-sim-rtl'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
+        local_logged('make ' + vsim_emu_name)
+        local_logged('cp -Lr ../vcs-sim-rtl ' + distribute_rocket_chip_loc + '/' + design_name + '/vcs-sim-rtl/')
+    return log
 
 
 
