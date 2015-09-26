@@ -1,3 +1,4 @@
+import redis
 
 from celery import Celery
 from celery.exceptions import SoftTimeLimitExceeded
@@ -6,7 +7,7 @@ from fabric.api import *
 from fabric.tasks import execute
 from copy import copy
 
-app = Celery('tasks', backend='rpc://', broker='redis://boxboro.millennium.berkeley.edu:6379')
+app = Celery('tasks', backend='rpc://', broker=redis_conf_string)
 
 sample = "./emulator-Top-DefaultCPPConfig +dramsim +max-cycles=100000000 +verbose +loadmem=../esp-tests/isa/{}.hex none 3>&1 1>&2 2>&3 | /nscratch/sagark/celery-workspace/test-rv/bin/spike-dasm  > ../../{}.out && [ $PIPESTATUS -eq 0 ]"
 
@@ -16,8 +17,7 @@ sample = "./emulator-Top-DefaultCPPConfig +dramsim +max-cycles=100000000 +verbos
 @app.task(bind=True)
 def compile_and_copy(self, design_name):
     # remove old results for that design if they exist
-    log = make_log()
-    local_logged = gen_logged_local(log)
+    local_logged = gen_logged_local(design_name)
     design_dir = '/scratch/sagark/celery-temp/' + design_name
     local_logged('rm -rf ' + design_dir)
     local_logged('mkdir -p ' + design_dir)
@@ -49,7 +49,7 @@ def compile_and_copy(self, design_name):
     with lcd(rc_dir + '/vlsi/vcs-sim-rtl'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
         local_logged('make ' + vsim_emu_name)
         local_logged('cp -Lr ../vcs-sim-rtl ' + distribute_rocket_chip_loc + '/' + design_name + '/vcs-sim-rtl/')
-    return log
+    return "PASS"
 
 
 

@@ -34,7 +34,7 @@ exec flow:
             6) Start subtasks to run tests
 
 """
-
+import redis
 from fabric.api import *
 
 # location of your code on scratch on the master node
@@ -64,23 +64,32 @@ shell_env_args = {
         'PATH': env_PATH,
         'LD_LIBRARY_PATH': env_LD_LIBRARY
 }
+broker = 'redis://boxboro.millennium.berkeley.edu:6379'
+
+redis_conf = {
+        'host': 'boxboro.millennium.berkeley.edu',
+        'port': 6379,
+        'db': 0
+        }
+redis_conf_string = 'redis://' + redis_conf['host'] + ":" + str(redis_conf['port'])
 
 tests = ['emulator', 'vsim', 'vcs-sim-rtl']
 
-def local_cap(cmd):
-    return local(cmd, capture=True)
 
-def make_log():
-    return {'stdout': '', 'stderr': ''}
 
-def gen_logged_local(logf):
+
+def gen_logged_local(design_name):
     """ Generate a version of fabric's local that logs to logf.
 
     An empty log can be created with make_log above.
     """
+    red = redis.StrictRedis(**redis_conf)
     def l2(cmd):
+        red.lpush(design_name, cmd)
+        red.publish(design_name, cmd)
         r = local(cmd, capture=True) 
-        logf['stdout'] += '\n' + cmd + '\n'
-        logf['stdout'] += r.stdout + '\n'
-        logf['stderr'] += '\n' + r.stderr + '\n'
+        red.lpush(design_name, r.stdout)
+        red.publish(design_name, r.stdout)
+        red.lpush(design_name, r.stderr)
+        red.publish(design_name, r.stderr)
     return l2
