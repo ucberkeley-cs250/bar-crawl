@@ -54,7 +54,6 @@ CONF = 'HwachaVLSIConfig'
 repo_location = 'git@github.com:sagark/rocket-chip'
 tests_location = 'git@github.com:ucb-bar/esp-tests.git'
 
-
 distribute_rocket_chip_loc = "/nscratch/sagark/celery-workspace/distribute"
 
 vlsi_bashrc = '/ecad/tools/vlsi.bashrc'
@@ -77,19 +76,34 @@ tests = ['emulator', 'vsim', 'vcs-sim-rtl']
 
 
 
+class RedisLogger:
+    def __init__(self, design_name):
+        self.red = redis.StrictRedis(**redis_conf)
+        self.design_name = design_name
 
-def gen_logged_local(design_name):
-    """ Generate a version of fabric's local that logs to logf.
-
-    An empty log can be created with make_log above.
-    """
-    red = redis.StrictRedis(**redis_conf)
-    def l2(cmd):
-        red.lpush(design_name, cmd)
-        red.publish(design_name, cmd)
+    def local_logged(self, cmd):
+        self.red.lpush(self.design_name, cmd)
+        self.red.publish(self.design_name, cmd)
         r = local(cmd, capture=True) 
-        red.lpush(design_name, r.stdout)
-        red.publish(design_name, r.stdout)
-        red.lpush(design_name, r.stderr)
-        red.publish(design_name, r.stderr)
-    return l2
+        self.red.lpush(self.design_name, r.stdout)
+        self.red.publish(self.design_name, r.stdout)
+        self.red.lpush(self.design_name, r.stderr)
+        self.red.publish(self.design_name, r.stderr)
+
+    def clear_log(self):
+        self.red.delete(self.design_name)
+
+#def gen_logged_local(design_name):
+#    """ Generate a version of fabric's local that logs to logf.
+#
+#    An empty log can be created with make_log above.
+#    """
+#    def l2(cmd):
+#        red.lpush(design_name, cmd)
+#        red.publish(design_name, cmd)
+#        r = local(cmd, capture=True) 
+#        red.lpush(design_name, r.stdout)
+#        red.publish(design_name, r.stdout)
+#        red.lpush(design_name, r.stderr)
+#        red.publish(design_name, r.stderr)
+#    return l2

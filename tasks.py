@@ -17,38 +17,39 @@ sample = "./emulator-Top-DefaultCPPConfig +dramsim +max-cycles=100000000 +verbos
 @app.task(bind=True)
 def compile_and_copy(self, design_name):
     # remove old results for that design if they exist
-    local_logged = gen_logged_local(design_name)
+    rl = RedisLogger(design_name)
     design_dir = '/scratch/sagark/celery-temp/' + design_name
-    local_logged('rm -rf ' + design_dir)
-    local_logged('mkdir -p ' + design_dir)
+    rl.local_logged('rm -rf ' + design_dir)
+    rl.local_logged('mkdir -p ' + design_dir)
     with lcd(design_dir):
-        local_logged('git clone ' + repo_location)
+        rl.local_logged('git clone ' + repo_location)
     rc_dir = design_dir + '/rocket-chip'
     with lcd(rc_dir):
-        local_logged('git submodule update --init')
+        rl.local_logged('git submodule update --init')
         # copy designs scala file
         configs_dir = 'src/main/scala/config'
-        local_logged('mkdir -p ' + configs_dir)
-        local_logged('cp ' + distribute_rocket_chip_loc + '/' + CONF + '.scala ' + configs_dir + '/')
+        rl.local_logged('mkdir -p ' + configs_dir)
+        rl.local_logged('cp ' + distribute_rocket_chip_loc + '/' + CONF + '.scala ' + configs_dir + '/')
 
     with lcd(rc_dir + '/vlsi'):
-        local_logged('git submodule update --init --recursive')
+        rl.local_logged('git submodule update --init --recursive')
 
     shell_env_args_conf = copy(shell_env_args)
     shell_env_args_conf['CONFIG'] = design_name
     cpp_emu_name = 'emulator-' + MODEL + '-' + design_name
     vsim_emu_name = 'simv-' + MODEL + '-' + design_name
     with lcd(rc_dir + '/emulator'), shell_env(**shell_env_args_conf):
-        local_logged('make ' + cpp_emu_name)
-        local_logged('cp -Lr ../emulator ' + distribute_rocket_chip_loc + '/' + design_name + '/emulator/')
+        rl.local_logged('make ' + cpp_emu_name)
+        rl.local_logged('cp -Lr ../emulator ' + distribute_rocket_chip_loc + '/' + design_name + '/emulator/')
     with lcd(rc_dir + '/vsim'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
-        local_logged('make ' + vsim_emu_name)
-        local_logged('cp -Lr ../vsim ' + distribute_rocket_chip_loc + '/' + design_name + '/vsim/')
+        rl.local_logged('make ' + vsim_emu_name)
+        rl.local_logged('cp -Lr ../vsim ' + distribute_rocket_chip_loc + '/' + design_name + '/vsim/')
     with lcd(distribute_rocket_chip_loc + '/' + design_name):
-        local_logged('cp -r emulator/emulator/dramsim2_ini vsim/vsim/')
+        rl.local_logged('cp -r emulator/emulator/dramsim2_ini vsim/vsim/')
     with lcd(rc_dir + '/vlsi/vcs-sim-rtl'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
-        local_logged('make ' + vsim_emu_name)
-        local_logged('cp -Lr ../vcs-sim-rtl ' + distribute_rocket_chip_loc + '/' + design_name + '/vcs-sim-rtl/')
+        rl.local_logged('make ' + vsim_emu_name)
+        rl.local_logged('cp -Lr ../vcs-sim-rtl ' + distribute_rocket_chip_loc + '/' + design_name + '/vcs-sim-rtl/')
+    rl.clear_log() # clear the redis log list
     return "PASS"
 
 
