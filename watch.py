@@ -2,7 +2,7 @@ import redis
 from paths import *
 import sys
 
-design_name = 'EOS24Config1'
+design_name = 'EOS24Config0'
 
 red = redis.StrictRedis(**redis_conf)
 ps = red.pubsub()

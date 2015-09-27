@@ -1,9 +1,5 @@
 """ This is the "master" script. Use fabric to coordinate local ops on
 the master.
-
-v1: just parallelize running tests. all compiles happen on the master.
-Should be able to just wrap these in @task decorators to make them celery 
-tasks eventually. (but then need to move these to tasks.py)
 """
 
 from celery.result import ResultSet
@@ -16,6 +12,10 @@ from tasks import cpptest, vcstest, compile_and_copy
 # filenames
 from paths import *
 import os
+
+# hashes to check against to make sure we're using consistent tools
+# and to name output directories
+hashes = get_hashes()
 
 # populated by do_jackhammer
 designs = []
@@ -69,7 +69,7 @@ print run_t
 
 compiles = ResultSet([])
 for x in designs:
-    compiles.add(compile_and_copy.delay(x))
+    compiles.add(compile_and_copy.delay(x, hashes))
 
 y = compiles.get()
 

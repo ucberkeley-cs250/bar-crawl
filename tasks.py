@@ -15,16 +15,18 @@ sample = "./emulator-Top-DefaultCPPConfig +dramsim +max-cycles=100000000 +verbos
 #app.conf.CELERYD_PREFETCH_MULTIPLIER=10
 
 @app.task(bind=True)
-def compile_and_copy(self, design_name):
-    # remove old results for that design if they exist
+def compile_and_copy(self, design_name, hashes):
     rl = RedisLogger(design_name)
     design_dir = '/scratch/sagark/celery-temp/' + design_name
+    # remove old results for that design if they exist
     rl.local_logged('rm -rf ' + design_dir)
     rl.local_logged('mkdir -p ' + design_dir)
     with lcd(design_dir):
-        rl.local_logged('git clone ' + repo_location)
+        rl.local_logged('git clone ' + rocket_chip_location)
     rc_dir = design_dir + '/rocket-chip'
     with lcd(rc_dir):
+        # checkout the correct hash
+        rl.local_logged('git checkout ' + hashes['rocket-chip'])
         rl.local_logged('git submodule update --init')
         # copy designs scala file
         configs_dir = 'src/main/scala/config'
