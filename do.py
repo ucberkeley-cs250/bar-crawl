@@ -7,7 +7,7 @@ from celery.result import ResultSet
 from fabric.api import *
 from fabric.tasks import execute
 from copy import copy
-from tasks import cpptest, vsimtest, compile_and_copy
+from tasks import cpptest, vsimtest, compile_and_copy, vcs_sim_rtl_test
 
 # filenames
 from paths import *
@@ -22,6 +22,7 @@ dtstr = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 hashes = get_hashes()
 
 jobdirname = dtstr + '-' + hashes['rocket-chip'][:8]
+#jobdirname = '2015-09-27-13-49-39-3eed3c6d'
 fulljobdir = distribute_rocket_chip_loc + '/' + jobdirname
 local('mkdir -p ' + fulljobdir)
 
@@ -66,8 +67,6 @@ def build_riscv_tests():
 do_jackhammer()
 build_riscv_tests()
 
-
-
 #### TODO should get the list of tests from Testing.scala
 tfile = open('testnames', 'r')
 run_t = map(lambda x: x.strip(), tfile.readlines())
@@ -81,12 +80,11 @@ for x in designs:
 
 y = compiles.get()
 
-
 rs = ResultSet([])
 for y in designs:
     for x in run_t:
         rs.add(vsimtest.delay(y, x, jobdirname))
-        rs.add(vcs_sim_rtl_test(y, x, jobdirname))
+        rs.add(vcs_sim_rtl_test.delay(y, x, jobdirname))
 
 z = rs.get()
 print z
