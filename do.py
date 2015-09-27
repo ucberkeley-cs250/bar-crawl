@@ -7,7 +7,7 @@ from celery.result import ResultSet
 from fabric.api import *
 from fabric.tasks import execute
 from copy import copy
-from tasks import cpptest, vcstest, compile_and_copy
+from tasks import cpptest, vsimtest, compile_and_copy
 
 # filenames
 from paths import *
@@ -21,7 +21,8 @@ dtstr = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 # and to name output directories
 hashes = get_hashes()
 
-jobdirname = dtstr + '-' + hashes['rocket-chip'][:8]
+#jobdirname = dtstr + '-' + hashes['rocket-chip'][:8]
+jobdirname = 'a'
 fulljobdir = distribute_rocket_chip_loc + '/' + jobdirname
 local('mkdir -p ' + fulljobdir)
 
@@ -85,7 +86,8 @@ y = compiles.get()
 rs = ResultSet([])
 for y in designs:
     for x in run_t:
-        rs.add(vcstest.delay(y, x, jobdirname))
+        rs.add(vsimtest.delay(y, x, jobdirname))
+        rs.add(vcs_sim_rtl_test(y, x, jobdirname))
 
 z = rs.get()
 print z

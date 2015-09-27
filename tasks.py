@@ -51,6 +51,9 @@ def compile_and_copy(self, design_name, hashes, jobinfo):
     with lcd(rc_dir + '/vlsi/vcs-sim-rtl'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
         rl.local_logged('make ' + vsim_emu_name)
         rl.local_logged('cp -Lr ../vcs-sim-rtl ' + distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vcs-sim-rtl/')
+    with lcd(distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name):
+        rl.local_logged('cp -r emulator/emulator/dramsim2_ini vsim/vsim/')
+        rl.local_logged('cp -r emulator/emulator/dramsim2_ini vcs-sim-rtl/vcs-sim-rtl/')
     rl.clear_log() # clear the redis log list
     return "PASS"
 
@@ -74,7 +77,7 @@ def cpptest(self, testname):
 samplevcs = "cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=../../../../esp-tests/isa/{}.hex 3>&1 1>&2 2>&3 | /nscratch/sagark/celery-workspace/test-rv/bin/spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
 
 
-def test2(design_name, test_to_run, jobinfo):
+def vsim(design_name, test_to_run, jobinfo):
     """ run a test """
     # todo: looks like we can't run this from any other directory, dramsim
     # path is hardcoded?
@@ -87,12 +90,32 @@ def test2(design_name, test_to_run, jobinfo):
 
 # 5 min timeout per test
 @app.task(bind=True, soft_time_limit=300)
-def vcstest(self, design_name, testname, jobinfo):
+def vsimtest(self, design_name, testname, jobinfo):
     try:
-        rval = execute(test2, design_name, testname, jobinfo).values()
+        rval = execute(vsim, design_name, testname, jobinfo).values()
         return rval
     except SoftTimeLimitExceeded:
         return "FAILED RAN OUT OF TIME"
 
+samplevcs_sim_rtl = 'cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=../../../../esp-tests/isa/{}.hex 3>&1 1>&2 2>&3 | /nscratch/sagark/celery-workspace/hwacha-rv/bin/spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]'
 
+def vcs_sim_rtl(design_name, test_to_run, jobinfo):
+    """ run a test """
+    # todo: looks like we can't run this from any other directory, dramsim
+    # path is hardcoded?
+    workdir = distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vcs-sim-rtl/vcs-sim-rtl'
+    with lcd(workdir), shell_env(**shell_env_args), settings(warn_only=True):
+        res = local(samplevcs_sim_rtl.format(design_name, test_to_run, test_to_run), shell='/bin/bash')
+        if res.failed:
+            return "FAIL"
+        return "PASS"
+
+# 5 min timeout per test
+@app.task(bind=True, soft_time_limit=300)
+def vcs_sim_rtl_test(self, design_name, testname, jobinfo):
+    try:
+        rval = execute(vcs_sim_rtl, design_name, testname, jobinfo).values()
+        return rval
+    except SoftTimeLimitExceeded:
+        return "FAILED RAN OUT OF TIME"
 
