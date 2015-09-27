@@ -2,7 +2,7 @@ import redis
 from paths import *
 import sys
 
-design_name = 'HwachaVLSIConfig0'
+design_name = 'EOS24Config1'
 
 red = redis.StrictRedis(**redis_conf)
 ps = red.pubsub()

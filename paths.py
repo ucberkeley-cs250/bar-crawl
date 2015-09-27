@@ -50,7 +50,7 @@ env_LD_LIBRARY = rvenv+"/lib"
 
 
 MODEL='Top'
-CONF = 'HwachaVLSIConfig'
+CONF = 'EOS24Config' # this is the overall config name (as opposed to EOS24Config0, EOS24Config1, etc)
 
 repo_location = 'git@github.com:sagark/rocket-chip'
 tests_location = 'git@github.com:ucb-bar/esp-tests.git'
@@ -62,7 +62,8 @@ vlsi_bashrc = '/ecad/tools/vlsi.bashrc'
 shell_env_args = {
         'RISCV': env_RISCV,
         'PATH': env_PATH,
-        'LD_LIBRARY_PATH': env_LD_LIBRARY
+        'LD_LIBRARY_PATH': env_LD_LIBRARY,
+        'CONFIG': CONF
 }
 broker = 'redis://boxboro.millennium.berkeley.edu:6379'
 

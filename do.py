@@ -74,11 +74,11 @@ for x in designs:
 y = compiles.get()
 
 
-#rs = ResultSet([])
-#for y in designs:
-#    for x in run_t:
-#        rs.add(vcstest.delay(y, x))
-#
-#z = rs.get()
-#print z
-#print len(z)
+rs = ResultSet([])
+for y in designs:
+    for x in run_t:
+        rs.add(vcstest.delay(y, x))
+
+z = rs.get()
+print z
+print len(z)
