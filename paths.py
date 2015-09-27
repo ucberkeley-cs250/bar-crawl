@@ -123,17 +123,17 @@ class RedisLogger:
         self.bkupstderr = sys.stderr
 
     def local_logged(self, cmd):
-        self.red.lpush(self.design_name, cmd + '\n')
-        self.red.publish(self.design_name, cmd + '\n')
+        self.red.lpush(self.design_name, '> ' + cmd + '\n')
+        self.red.publish(self.design_name, '> ' + cmd + '\n')
         #sys.stdout = self.override
         #sys.stderr = self.override
         r = local(cmd, capture=True)
         #sys.stdout = self.bkupstdout
         #sys.stderr = self.bkupstderr
-        self.red.lpush(self.design_name, "stdout:\n" + r.stdout)
-        self.red.publish(self.design_name, "stdout:\n" + r.stdout)
-        self.red.lpush(self.design_name, "stderr\n" + r.stderr)
-        self.red.publish(self.design_name, "stderr\n" + r.stderr)
+        self.red.lpush(self.design_name, "stdout:\n" + r.stdout + '\n')
+        self.red.publish(self.design_name, "stdout:\n" + r.stdout + '\n')
+        self.red.lpush(self.design_name, "stderr:\n" + r.stderr + '\n')
+        self.red.publish(self.design_name, "stderr:\n" + r.stderr + '\n')
 
     def clear_log(self):
         self.red.delete(self.design_name)

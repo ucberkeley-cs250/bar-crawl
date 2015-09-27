@@ -12,10 +12,18 @@ from tasks import cpptest, vcstest, compile_and_copy
 # filenames
 from paths import *
 import os
+import datetime
+
+# launchtime
+dtstr = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 
 # hashes to check against to make sure we're using consistent tools
 # and to name output directories
 hashes = get_hashes()
+
+jobdirname = dtstr + '-' + hashes['rocket-chip'][:8]
+fulljobdir = distribute_rocket_chip_loc + '/' + jobdirname
+local('mkdir -p ' + fulljobdir)
 
 # populated by do_jackhammer
 designs = []
@@ -25,7 +33,7 @@ def do_jackhammer():
         local('make')
     designs_scala = master_rocket_chip_dir + '/src/main/scala/config/' + CONF + '.scala'
 
-    local('cp ' + designs_scala + ' ' + distribute_rocket_chip_loc)
+    local('cp ' + designs_scala + ' ' + fulljobdir)
 
     ## GET/populate list of design names
     a = open(designs_scala, 'r')
@@ -43,7 +51,7 @@ def do_jackhammer():
     #create a directory in distribute for each design, test
     for x in designs:
         for y in tests:
-            local('mkdir -p ' + distribute_rocket_chip_loc + '/' + x + '/' + y)
+            local('mkdir -p ' + fulljobdir + '/' + x + '/' + y)
 
 def build_riscv_tests():
     with lcd(distribute_rocket_chip_loc), shell_env(**shell_env_args), settings(warn_only=True):
@@ -69,7 +77,7 @@ print run_t
 
 compiles = ResultSet([])
 for x in designs:
-    compiles.add(compile_and_copy.delay(x, hashes))
+    compiles.add(compile_and_copy.delay(x, hashes, jobdirname))
 
 y = compiles.get()
 
@@ -77,7 +85,7 @@ y = compiles.get()
 rs = ResultSet([])
 for y in designs:
     for x in run_t:
-        rs.add(vcstest.delay(y, x))
+        rs.add(vcstest.delay(y, x, jobdirname))
 
 z = rs.get()
 print z
