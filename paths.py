@@ -36,6 +36,7 @@ exec flow:
 """
 import redis
 from fabric.api import *
+import sys
 
 # location of your code on scratch on the master node
 master_rocket_chip_dir = "/scratch/sagark/hwacha-celery/rocket-chip"
@@ -74,21 +75,41 @@ redis_conf_string = 'redis://' + redis_conf['host'] + ":" + str(redis_conf['port
 
 tests = ['emulator', 'vsim', 'vcs-sim-rtl']
 
+class Catcher(object):
+    def __init__(self, design_name, red):
+        self.red = red
+        self.design_name = design_name
+
+    def write(self, msg):
+        self.red.lpush(self.design_name, msg)
+        self.red.publish(self.design_name, msg)
+    
+    def flush(self):
+        pass
+
+
 
 
 class RedisLogger:
     def __init__(self, design_name):
         self.red = redis.StrictRedis(**redis_conf)
         self.design_name = design_name
+        self.override = Catcher(design_name, self.red) 
+        self.bkupstdout = sys.stdout
+        self.bkupstderr = sys.stderr
 
     def local_logged(self, cmd):
-        self.red.lpush(self.design_name, cmd)
-        self.red.publish(self.design_name, cmd)
-        r = local(cmd, capture=True) 
-        self.red.lpush(self.design_name, r.stdout)
-        self.red.publish(self.design_name, r.stdout)
-        self.red.lpush(self.design_name, r.stderr)
-        self.red.publish(self.design_name, r.stderr)
+        #self.red.lpush(self.design_name, cmd)
+        #self.red.publish(self.design_name, cmd)
+        sys.stdout = self.override
+        sys.stderr = self.override
+        r = local(cmd, capture=False)
+        sys.stdout = self.bkupstdout
+        sys.stderr = self.bkupstderr
+        #self.red.lpush(self.design_name, r.stdout)
+        #self.red.publish(self.design_name, r.stdout)
+        #self.red.lpush(self.design_name, r.stderr)
+        #self.red.publish(self.design_name, r.stderr)
 
     def clear_log(self):
         self.red.delete(self.design_name)

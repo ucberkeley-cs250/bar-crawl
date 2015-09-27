@@ -1,6 +1,6 @@
 import redis
 from paths import *
-
+import sys
 
 design_name = 'HwachaVLSIConfig0'
 
@@ -12,8 +12,8 @@ sofar.reverse()
 ps.subscribe(design_name)
 
 for x in sofar:
-    print x
+    sys.stdout.write(x)
 
 while True:
     for item in ps.listen():
-        print item['data']
+        sys.stdout.write(str(item['data']))
