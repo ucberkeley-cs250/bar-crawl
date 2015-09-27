@@ -21,8 +21,7 @@ dtstr = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 # and to name output directories
 hashes = get_hashes()
 
-#jobdirname = dtstr + '-' + hashes['rocket-chip'][:8]
-jobdirname = 'a'
+jobdirname = dtstr + '-' + hashes['rocket-chip'][:8]
 fulljobdir = distribute_rocket_chip_loc + '/' + jobdirname
 local('mkdir -p ' + fulljobdir)
 
