@@ -28,9 +28,10 @@ exec flow:
             6) Start subtasks to run tests
 
 """
-
+import subprocess
 import redis
 from fabric.api import *
+from fabric import operations
 import sys
 
 # location of your code on scratch on the master node
@@ -132,3 +133,48 @@ class RedisLogger:
 
     def clear_log(self):
         self.red.delete(self.design_name)
+
+
+
+class RedisLoggerStream:
+    """ Replace fabric local to allow for streaming output back to the master
+    through redis.
+
+    This is experimental since it uses internal functions from fabric. Use
+    only for non-destructive stuff for now just to be safe.
+    """
+
+
+    def __init__(self, design_name):
+        self.red = redis.StrictRedis(**redis_conf)
+        self.design_name = design_name
+        self.override = Catcher(design_name, self.red) 
+        self.bkupstdout = sys.stdout
+        self.bkupstderr = sys.stderr
+
+    def local_logged(self, cmd):
+        with_env = operations._prefix_env_vars(cmd, local=True)
+        wrapped_command = operations._prefix_env_vars(with_env, 'local')
+
+
+
+        self.red.lpush(self.design_name, '> ' + wrapped_command + '\n')
+        self.red.publish(self.design_name, '> ' + wrapped_command + '\n')
+        #sys.stdout = self.override
+        #sys.stderr = self.override
+        #r = local(cmd, capture=True)
+        s = subprocess.Popen(wrapped_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                executable=None, close_fds=True)
+        for c in iter(lambda: s.stdout.read(1), ''):
+            self.red.publish(self.design_name, c)
+            self.red.lpush(self.design_name, c)
+        #sys.stdout = self.bkupstdout
+        #sys.stderr = self.bkupstderr
+        #self.red.lpush(self.design_name, "stdout:\n" + r.stdout + '\n')
+        #self.red.publish(self.design_name, "stdout:\n" + r.stdout + '\n')
+        #self.red.lpush(self.design_name, "stderr:\n" + r.stderr + '\n')
+        #self.red.publish(self.design_name, "stderr:\n" + r.stderr + '\n')
+
+    def clear_log(self):
+        self.red.delete(self.design_name)
+

@@ -40,7 +40,14 @@ def compile_and_copy(self, design_name, hashes, jobinfo):
     shell_env_args_conf['CONFIG'] = design_name
     cpp_emu_name = 'emulator-' + MODEL + '-' + design_name
     vsim_emu_name = 'simv-' + MODEL + '-' + design_name
-    with lcd(rc_dir + '/emulator'), shell_env(**shell_env_args_conf):
+
+
+    rl2 = RedisLoggerStream(design_name)
+    with lcd(rc_dir + '/vlsi/dc-syn'), shell_env(**shell_env_args_conf):
+        rl2.local_logged('make 2>&1')
+    return "PASS"
+
+"""    with lcd(rc_dir + '/emulator'), shell_env(**shell_env_args_conf):
         rl.local_logged('make ' + cpp_emu_name)
         rl.local_logged('cp -Lr ../emulator ' + distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/emulator/')
     with lcd(rc_dir + '/vsim'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
@@ -56,7 +63,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo):
         rl.local_logged('cp -r emulator/emulator/dramsim2_ini vcs-sim-rtl/vcs-sim-rtl/')
     rl.clear_log() # clear the redis log list
     return "PASS"
-
+"""
 
 
 def test1(test_to_run):
