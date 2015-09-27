@@ -1,10 +1,6 @@
 """ Directory structure:
-
-
 in /nscratch/sagark/celery-workspace:
-
-
-distribute/
+distribute/date-time-commit8/
     -Designs.scala
     -Design0
     -Design1
@@ -12,8 +8,6 @@ distribute/
         -emulator (C++)
         -vsim
         -etc
-
-
 -------------- 
 exec flow:
 
@@ -34,11 +28,10 @@ exec flow:
             6) Start subtasks to run tests
 
 """
+
 import redis
 from fabric.api import *
 import sys
-
-
 
 # location of your code on scratch on the master node
 # -celery will run based on the latest commit here
@@ -91,13 +84,15 @@ shell_env_args = {
         'LD_LIBRARY_PATH': env_LD_LIBRARY,
         'CONFIG': CONF
 }
+
 broker = 'redis://boxboro.millennium.berkeley.edu:6379'
 
 redis_conf = {
         'host': 'boxboro.millennium.berkeley.edu',
         'port': 6379,
         'db': 0
-        }
+}
+
 redis_conf_string = 'redis://' + redis_conf['host'] + ":" + str(redis_conf['port'])
 
 tests = ['emulator', 'vsim', 'vcs-sim-rtl']
