@@ -6,11 +6,10 @@ bar-crawl is a distributed build/design space exploration tool for rocket-chip. 
 Features:
 -----------------------
 
-* Job tracking through a web interface
-* A task is generated per test per test platform
+* Job tracking through a web interface (with [Celery Flower](https://github.com/mher/flower))
+* Individual management of tests, since a task is generated per test per test platform
 * A "watch" script to let you peek into compile jobs on worker nodes, without writing all output to a file.
 * Easily scale-up/down machines in your cluster, while jobs are running
-
 
 Workflow:
 -----------------------
