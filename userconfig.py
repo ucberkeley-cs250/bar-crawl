@@ -29,6 +29,12 @@ class UserJobConfig:
     distribute_rocket_chip_loc = "/nscratch/sagark/celery-workspace/distribute"
 
     # set of tests to run
-    # TODO: use these inside compile_and_copy to decide what to actually run
-    tests = ['emulator', 'vsim', 'vcs-sim-rtl', 'dc-syn']
+    # remove/comment out items that you don't wish to run
+    # NOTE: emulator is non-optional. see note in tasks.py
+    tests = [
+            'emulator', 
+            'vsim', 
+            'vcs-sim-rtl', 
+            'dc-syn',
+    ]
 

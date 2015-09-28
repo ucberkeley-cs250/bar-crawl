@@ -17,6 +17,8 @@ sample = "./emulator-Top-DefaultCPPConfig +dramsim +max-cycles=100000000 +verbos
 
 @app.task(bind=True)
 def compile_and_copy(self, design_name, hashes, jobinfo, run_t, userjobconfig):
+    rs = ResultSet([])
+
     rl = RedisLogger(design_name)
     rl2 = RedisLoggerStream(design_name)
 
@@ -48,48 +50,55 @@ def compile_and_copy(self, design_name, hashes, jobinfo, run_t, userjobconfig):
     vsim_emu_name = 'simv-' + userjobconfig.MODEL + '-' + design_name
 
     # make C++ emulator
+    # NOTE: This is currently required to get the dramsim2_ini directory
     with lcd(rc_dir + '/emulator'), shell_env(**shell_env_args_conf):
         rl2.local_logged('make ' + cpp_emu_name + ' 2>&1')
         rl.local_logged('cp -Lr ../emulator ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/emulator/')
 
-    # make vsim, copy
-    with lcd(rc_dir + '/vsim'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
-        rl2.local_logged('make ' + vsim_emu_name + ' 2>&1')
-        rl.local_logged('cp -Lr ../vsim ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vsim/')
+    #TODO: run C++ emulator tests
 
-    # copy dramsim2_ini directory for vsim
-    with lcd(userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name):
-        rl.local_logged('cp -r emulator/emulator/dramsim2_ini vsim/vsim/')
+    """ Run vsim """
+    if 'vsim' in userjobconfig.tests:
+        # make vsim, copy
+        with lcd(rc_dir + '/vsim'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
+            rl2.local_logged('make ' + vsim_emu_name + ' 2>&1')
+            rl.local_logged('cp -Lr ../vsim ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vsim/')
 
-    # start vsim tasks
-    rs = ResultSet([])
-    for y in run_t:
-        rs.add(vsimtest.delay(design_name, y, jobinfo, userjobconfig))
+        # copy dramsim2_ini directory for vsim
+        with lcd(userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name):
+            rl.local_logged('cp -r emulator/emulator/dramsim2_ini vsim/vsim/')
 
-    # make vcs-sim-rtl, copy
-    with lcd(rc_dir + '/vlsi/vcs-sim-rtl'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
-        rl2.local_logged('make ' + vsim_emu_name + ' 2>&1')
-        rl.local_logged('cp -Lr ../vcs-sim-rtl ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vcs-sim-rtl/')
+        # start vsim tasks
+        for y in run_t:
+            rs.add(vsimtest.delay(design_name, y, jobinfo, userjobconfig))
 
-    # copy dramsim2_ini directory for vcs-sim-rtl
-    with lcd(userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name):
-        rl.local_logged('cp -r emulator/emulator/dramsim2_ini vcs-sim-rtl/vcs-sim-rtl/')
 
-    for y in run_t:
-        rs.add(vcs_sim_rtl_test.delay(design_name, y, jobinfo, userjobconfig))
+    """ Run vcs-sim-rtl """
+    if 'vcs-sim-rtl' in userjobconfig.tests:
+        # make vcs-sim-rtl, copy
+        with lcd(rc_dir + '/vlsi/vcs-sim-rtl'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
+            rl2.local_logged('make ' + vsim_emu_name + ' 2>&1')
+            rl.local_logged('cp -Lr ../vcs-sim-rtl ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vcs-sim-rtl/')
 
-    # vlsi, dc
-    with lcd(rc_dir + '/vlsi/dc-syn'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
-        rl2.local_logged('make 2>&1')
-        rl.local_logged('cp -r current-dc/reports ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
-        rl.local_logged('cp -r current-dc/results ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
+        # copy dramsim2_ini directory for vcs-sim-rtl
+        with lcd(userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name):
+            rl.local_logged('cp -r emulator/emulator/dramsim2_ini vcs-sim-rtl/vcs-sim-rtl/')
+
+        for y in run_t:
+            rs.add(vcs_sim_rtl_test.delay(design_name, y, jobinfo, userjobconfig))
+
+    """ run dc-syn """
+    if 'dc-syn' in userjobconfig.tests:
+        # vlsi, dc
+        with lcd(rc_dir + '/vlsi/dc-syn'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
+            rl2.local_logged('make 2>&1')
+            rl.local_logged('cp -r current-dc/reports ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
+            rl.local_logged('cp -r current-dc/results ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
 
     #with lcd(rc_dir + '/vlsi/vcs-sim-gl-syn'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
     #    # todo actually use the name
     #    rl2.local_logged('make 2>&1')
     #    # todo copy
-
-
 
     #rl.clear_log() # clear the redis log list
     return rs

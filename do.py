@@ -29,7 +29,6 @@ local('mkdir -p ' + fulljobdir)
 # populated by do_jackhammer
 designs = []
 
-
 def do_jackhammer():
     with lcd(userjobconfig.master_rocket_chip_dir + '/jackhammer'), shell_env(**userjobconfig.shell_env_args):
         local('make')
