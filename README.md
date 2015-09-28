@@ -1,4 +1,4 @@
-bar-crawl: Berkeley Architecture Research, Cluster for Running Asic WorkLoads
+bar-crawl: Berkeley Architecture Research - Cluster for Running Asic WorkLoads
 ==============================================================================
 
 bar-crawl is a distributed build/design space exploration tool for rocket-chip. It uses [jackhammer](http://github.com/ucb-bar/jackhammer) to generate designs from a set of constraints and uses the [Celery Framework](http://www.celeryproject.org/) to distribute jobs across an arbitrary number of machines.
@@ -10,6 +10,7 @@ Features:
 * Fine-grained management of tests, since a task is generated per test per test platform per design
 * A "watch" script to let you access output from compile jobs on worker nodes, without writing all output to a file.
 * Easily scale-up/down machines in your cluster, while jobs are running
+* WIP: Lets users share installations of riscv-tools and riscv-tests, but ensures that consistent versions are used
 * TODO: Generate designs based on feedback from earlier jobs
 * TODO: Store important features from results into DB for easy analysis
 
