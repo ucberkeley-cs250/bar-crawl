@@ -1,4 +1,4 @@
-bar-crawl: Berkeley Architecture Research Cluster for Running Asic WorkLoads
+bar-crawl: Berkeley Architecture Research, Cluster for Running Asic WorkLoads
 ==============================================================================
 
 Prereqs:
@@ -6,6 +6,30 @@ Prereqs:
 - TODO: Install celery, fabric or just add mine to PYTHONPATH
 - Use ssh forwarding
 
+
+Workflow:
+-----------------------
+
+1) bar-crawl starts in your local working copy (/scratch/USERNAME/hwacha-celery), runs jackhammer there to generate a scala file containing your designs, and collects version information (commit hashes) about components of your local install, which it will mimic on worker nodes.
+
+2) bar-crawl will create the following directory structure at your shared output location: 
+``` 
+output_location/
+  2015-12-29-18-56-54-bad3s929/
+    AwesomeDesign0/
+    AwesomeDesign1/
+    AwesomeDesign2/
+      emulator/
+      vsim/
+      vcs-sim-rtl/
+      dc-syn/
+  2015-12-30-18-56-54-a7d8s9a9/ 
+``` 
+Additionally, bar-crawl will build and install riscv-tests into the shared output location.
+
+3) Currently, bar-crawl reads from the included testnames file to determine which tests should be run. In the future, this will be read directly from the scala source.
+
+4) bar-crawl will then run the compile_and_copy task, which runs through various parts of the build and dispatches tests to workers at individual test granularity as the build progresses. Builds can be monitored through the web interface on the master node (master:8080).
 
 How to use:
 -----------------------
