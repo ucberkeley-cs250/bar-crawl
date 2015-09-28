@@ -154,7 +154,7 @@ class RedisLoggerStream:
 
     def local_logged(self, cmd):
         with_env = operations._prefix_env_vars(cmd, local=True)
-        wrapped_command = operations._prefix_env_vars(with_env, 'local')
+        wrapped_command = operations._prefix_commands(with_env, 'local')
 
 
 
