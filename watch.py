@@ -1,5 +1,5 @@
 import redis
-from paths import *
+from crawlutils import *
 import sys
 
 design_name = 'EOS24Config0'
