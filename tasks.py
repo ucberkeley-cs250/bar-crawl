@@ -64,7 +64,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, run_t, userjobconfig):
     # start vsim tasks
     rs = ResultSet([])
     for y in run_t:
-        rs.add(vsimtest.delay(design_name, y, jobinfo))
+        rs.add(vsimtest.delay(design_name, y, jobinfo, userjobconfig))
 
     # make vcs-sim-rtl, copy
     with lcd(rc_dir + '/vlsi/vcs-sim-rtl'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
@@ -76,7 +76,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, run_t, userjobconfig):
         rl.local_logged('cp -r emulator/emulator/dramsim2_ini vcs-sim-rtl/vcs-sim-rtl/')
 
     for y in run_t:
-        rs.add(vcs_sim_rtl_test.delay(design_name, y, jobinfo))
+        rs.add(vcs_sim_rtl_test.delay(design_name, y, jobinfo, userjobconfig))
 
     # vlsi, dc
     with lcd(rc_dir + '/vlsi/dc-syn'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
