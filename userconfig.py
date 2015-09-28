@@ -4,6 +4,11 @@
 # -make sure you've pushed to github
 #
 class UserJobConfig:
+
+    # your username
+    # bar-crawl will use /scratch/USERNAME/celery-temp for compiles
+    username = 'sagark'
+
     master_rocket_chip_dir = "/scratch/sagark/hwacha-celery/rocket-chip"
 
     # risc-v tools installation. should be on nscratch

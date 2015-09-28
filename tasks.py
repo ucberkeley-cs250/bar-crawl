@@ -23,7 +23,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, run_t, userjobconfig):
     rl2 = RedisLoggerStream(design_name)
 
     # create scratch space on this node for compiling the design, then clone
-    design_dir = '/scratch/sagark/celery-temp/' + design_name
+    design_dir = '/scratch/' + userjobconfig.username + '/celery-temp/' + design_name
     # remove old results for that design if they exist
     rl.local_logged('rm -rf ' + design_dir)
     rl.local_logged('mkdir -p ' + design_dir)
