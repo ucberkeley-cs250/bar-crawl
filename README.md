@@ -25,6 +25,7 @@ output_location/
       vcs-sim-rtl/
       dc-syn/
   2015-12-30-18-56-54-a7d8s9a9/
+  riscv-tests/
   ...
 ``` 
 Additionally, bar-crawl will build and install riscv-tests into the shared output location.
