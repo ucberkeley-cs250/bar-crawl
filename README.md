@@ -7,8 +7,8 @@ Features:
 -----------------------
 
 * Job tracking through a web interface (with [Celery Flower](https://github.com/mher/flower))
-* Individual management of tests, since a task is generated per test per test platform
-* A "watch" script to let you peek into compile jobs on worker nodes, without writing all output to a file.
+* Fine-grained management of tests, since a task is generated per test per test platform per design
+* A "watch" script to let you access output from compile jobs on worker nodes, without writing all output to a file.
 * Easily scale-up/down machines in your cluster, while jobs are running
 
 Workflow:
