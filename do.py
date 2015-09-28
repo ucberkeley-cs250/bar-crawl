@@ -76,16 +76,18 @@ print run_t
 
 compiles = ResultSet([])
 for x in designs:
-    compiles.add(compile_and_copy.delay(x, hashes, jobdirname))
+    compiles.add(compile_and_copy.delay(x, hashes, jobdirname, run_t))
 
 y = compiles.get()
+print y[0].get()
 
-rs = ResultSet([])
-for y in designs:
-    for x in run_t:
-        rs.add(vsimtest.delay(y, x, jobdirname))
-        rs.add(vcs_sim_rtl_test.delay(y, x, jobdirname))
 
-z = rs.get()
-print z
-print len(z)
+#rs = ResultSet([])
+#for x in designs:
+#    for y in run_t:
+#        rs.add(vsimtest.delay(x, y, jobdirname))
+#        rs.add(vcs_sim_rtl_test.delay(x, y, jobdirname))
+#
+#z = rs.get()
+#print z
+#print len(z)
