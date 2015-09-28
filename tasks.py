@@ -44,8 +44,8 @@ def compile_and_copy(self, design_name, hashes, jobinfo, run_t, userjobconfig):
 
     shell_env_args_conf = copy(userjobconfig.shell_env_args)
     shell_env_args_conf['CONFIG'] = design_name
-    cpp_emu_name = 'emulator-' + MODEL + '-' + design_name
-    vsim_emu_name = 'simv-' + MODEL + '-' + design_name
+    cpp_emu_name = 'emulator-' + userjobconfig.MODEL + '-' + design_name
+    vsim_emu_name = 'simv-' + userjobconfig.MODEL + '-' + design_name
 
     # make C++ emulator
     with lcd(rc_dir + '/emulator'), shell_env(**shell_env_args_conf):
