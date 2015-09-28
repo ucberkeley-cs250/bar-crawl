@@ -1,5 +1,6 @@
-""" This is the "master" script. Use fabric to coordinate local ops on
-the master.
+""" This is the master script for running bar crawl. Once you've set things up
+in userconfig.py, you can run jobs using:
+python run-job.py
 """
 
 from celery.result import ResultSet
