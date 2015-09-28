@@ -3,16 +3,15 @@ the master.
 """
 
 from celery.result import ResultSet
-
 from fabric.api import *
 from fabric.tasks import execute
 from copy import copy
 from tasks import cpptest, vsimtest, compile_and_copy, vcs_sim_rtl_test
-
-# filenames
-from paths import *
 import os
 import datetime
+
+from userconfig import UserJobConfig
+from crawlutils import *
 
 # launchtime
 dtstr = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
