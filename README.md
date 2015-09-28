@@ -1,10 +1,15 @@
 bar-crawl: Berkeley Architecture Research, Cluster for Running Asic WorkLoads
 ==============================================================================
 
-Prereqs:
+bar-crawl is a distributed build/design space exploration tool for rocket-chip. It uses [jackhammer](http://github.com/ucb-bar/jackhammer) to generate designs from a set of constraints and uses the [Celery Framework](http://www.celeryproject.org/) to distribute jobs across an arbitrary number of machines.
+
+Features:
 -----------------------
-- TODO: Install celery, fabric or just add mine to PYTHONPATH
-- Use ssh forwarding
+
+* Job tracking through a web interface
+* A task is generated per test per test platform
+* A "watch" script to let you peek into compile jobs on worker nodes, without writing all output to a file.
+* Easily scale-up/down machines in your cluster, while jobs are running
 
 
 Workflow:
@@ -51,3 +56,7 @@ Inside it, clone rocket-chip. This will be your working directory. Celery will t
 
 
 
+Prereqs (TODO):
+-----------------------
+- TODO: Install celery, fabric or just add mine to PYTHONPATH
+- Use ssh forwarding
