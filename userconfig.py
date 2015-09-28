@@ -9,9 +9,13 @@ class UserJobConfig:
     # bar-crawl will use /scratch/USERNAME/celery-temp for compiles
     username = 'sagark'
 
+    # your rocket-chip work directory on the master node
+    # bar-crawl will look at commit hashes here to make sure it's testing the
+    # right code with the right toolchain/tests
     master_rocket_chip_dir = "/scratch/sagark/hwacha-celery/rocket-chip"
 
     # risc-v tools installation. should be on nscratch
+    # TODO: configure based on changes
     rvenv = "/nscratch/sagark/celery-workspace/hwacha-rv"
     env_RISCV = rvenv
     env_PATH = rvenv+"/bin:$PATH"
@@ -30,7 +34,8 @@ class UserJobConfig:
     rocket_chip_location = 'git@github.com:sagark/rocket-chip'
     tests_location = 'git@github.com:ucb-bar/esp-tests.git'
 
-    # this should probably be set on a per-project basis
+    # TODO: this should probably be set on a per-project basis, so that users
+    # trying out a design will all dump things into one shared dir
     distribute_rocket_chip_loc = "/nscratch/sagark/celery-workspace/distribute"
 
     # set of tests to run
