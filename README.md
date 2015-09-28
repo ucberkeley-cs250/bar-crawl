@@ -10,6 +10,7 @@ Features:
 * Fine-grained management of tests, since a task is generated per test per test platform per design
 * A "watch" script to let you access output from compile jobs on worker nodes, without writing all output to a file.
 * Easily scale-up/down machines in your cluster, while jobs are running
+* WIP: Lets users share installations of riscv-tools and riscv-tests, but ensures that consistent versions are used
 * TODO: Generate designs based on feedback from earlier jobs
 * TODO: Store important features from results into DB for easy analysis
 
