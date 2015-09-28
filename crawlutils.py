@@ -13,13 +13,13 @@ def get_hash(p):
         h = local('git rev-parse HEAD', capture=True)
     return h.stdout
 
-def get_hashes():
+def get_hashes(base_dir):
     """ Populate a dictionary full of commit hashes for components."""
     # submodule paths relative to rocket-chip root. 
     submodules = ['riscv-tools', 'riscv-tools/riscv-tests']
-    submodule_paths = map(lambda x: master_rocket_chip_dir + '/' + x, submodules)
+    submodule_paths = map(lambda x: base_dir + '/' + x, submodules)
     d = {}
-    d['rocket-chip'] = get_hash(master_rocket_chip_dir)
+    d['rocket-chip'] = get_hash(base_dir)
     for x in submodule_paths:
         d[x.rsplit('/', 1)[-1]] = get_hash(x)
     return d
