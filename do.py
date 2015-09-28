@@ -22,7 +22,6 @@ dtstr = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 hashes = get_hashes()
 
 jobdirname = dtstr + '-' + hashes['rocket-chip'][:8]
-#jobdirname = '2015-09-27-13-49-39-3eed3c6d'
 fulljobdir = distribute_rocket_chip_loc + '/' + jobdirname
 local('mkdir -p ' + fulljobdir)
 
@@ -56,10 +55,6 @@ def do_jackhammer():
 
 def build_riscv_tests():
     with lcd(distribute_rocket_chip_loc), shell_env(**shell_env_args), settings(warn_only=True):
-        # build the tests on master node
-        # faster than building then copying...
-        # and i'm guessing faster than a bunch of distributed writes from 
-        # workers
         local('git clone ' + tests_location)
         local('cd esp-tests && git submodule update --init')
         local('cd esp-tests/isa && make -j32')

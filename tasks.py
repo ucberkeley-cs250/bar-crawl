@@ -81,6 +81,15 @@ def compile_and_copy(self, design_name, hashes, jobinfo, run_t):
     # vlsi, dc
     with lcd(rc_dir + '/vlsi/dc-syn'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
         rl2.local_logged('make 2>&1')
+        rl.local_logged('cp -r current-dc/reports ' + distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
+        rl.local_logged('cp -r current-dc/results ' + distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
+
+    #with lcd(rc_dir + '/vlsi/vcs-sim-gl-syn'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
+    #    # todo actually use the name
+    #    rl2.local_logged('make 2>&1')
+    #    # todo copy
+
+
 
     #rl.clear_log() # clear the redis log list
     return rs

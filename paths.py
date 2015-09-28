@@ -96,7 +96,7 @@ redis_conf = {
 
 redis_conf_string = 'redis://' + redis_conf['host'] + ":" + str(redis_conf['port'])
 
-tests = ['emulator', 'vsim', 'vcs-sim-rtl']
+tests = ['emulator', 'vsim', 'vcs-sim-rtl', 'dc-syn']
 
 class Catcher(object):
     def __init__(self, design_name, red):
