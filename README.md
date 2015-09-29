@@ -39,7 +39,19 @@ Additionally, bar-crawl will build and install riscv-tests into the shared outpu
 
 3) Currently, bar-crawl reads from the included testnames file to determine which tests should be run. In the future, this will be read directly from the scala source.
 
-4) bar-crawl will then run the compile_and_copy task, which runs through various parts of the build and dispatches tests to workers at individual test granularity as the build progresses. Builds can be monitored through the web interface on the master node (master:8080).
+4) bar-crawl will then run the compile_and_copy task, which runs through various parts of the build and dispatches tests to workers at individual test granularity as the build progresses. Builds can be monitored through the web interface on the master node (master:8080). 
+
+5) You can also monitor the compile tasks using the watch script. Run python watch.py and follow the prompts.
+
+Setup:
+-----------------------
+
+Add the following to your `.bashrc` (with my username for now) to get `celery`, `flower`, and `redis-server` on your `PATH`/`PYTHONPATH`:
+
+```
+export PYTHONPATH=/nscratch/sagark/py_inst/lib/python2.7/site-packages:/nscratch/sagark/py_inst:$PYTHONPATH
+export PATH=/nscratch/sagark/bin/bin:/nscratch/sagark/bin:/nscratch/sagark/py_inst/bin:~/bin:$PATH
+```
 
 How to use:
 -----------------------
