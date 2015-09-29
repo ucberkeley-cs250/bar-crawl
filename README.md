@@ -56,19 +56,40 @@ export PATH=/nscratch/sagark/bin/bin:/nscratch/sagark/bin:/nscratch/sagark/py_in
 How to use:
 -----------------------
 
-1. Choose a "master" node and login. On that node, create a directory:
+0) Choose a master node and login
+
+1) Clone bar-crawl into `/nscratch/YOUR_USERNAME/bar-crawl`
+
+(The rest of this assumes the workers are already running. See below for instructions
+for starting a cluster)
+
+2) Set the following variables in `userconfig.py`:
 
 ```
-/scratch/YOUR_USERNAME/hwacha-celery
+username # your username
+master_rocket_chip_dir # your rocket-chip working directory
+rocket_chip_location # github repo for rocket chip
+tests # comment out tests you don't want to run
 ```
 
-Inside it, clone rocket-chip. This will be your working directory. Celery will take the latest commit in this repo and use it to run your distributed tests. For now, Celery pulls from GitHub, so you'll need to make sure that your commit is pushed publicly.
+bar-crawl will take the latest commit in master_rocket_chip_dir and use it to 
+run your distributed tests. For now, bar-crawl pulls from GitHub, so you'll 
+need to make sure that your commit is pushed publicly.
 
-2. Next, you need to start workers on the cluster. Eventually, the workers will be left running. For now, they need to be manually started since they need to be restarted anyway whenever changes are made to bar-crawl. To start the workers:
-  [Inside bar-crawl]
-  ./run-fabric.sh
+3) If you want to view the web-ui, run the access-web.sh script on your 
+machine, then open localhost:8080 in your browser
+
+4) Start the job using
+
+```
+python run-job.py
+```
 
 
+Starting a Cluster:
+----------------------------
+
+TODO
 
 Prereqs (TODO):
 -----------------------
