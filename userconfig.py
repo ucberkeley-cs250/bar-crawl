@@ -12,7 +12,7 @@ class UserJobConfig:
     # your rocket-chip work directory on the master node
     # bar-crawl will look at commit hashes here to make sure it's testing the
     # right code with the right toolchain/tests
-    master_rocket_chip_dir = "/scratch/sagark/hwacha-celery/rocket-chip"
+    master_rocket_chip_dir = "/scratch/sagark/hwacha-bump2/rocket-chip"
 
     # risc-v tools installation. should be on nscratch
     # TODO: configure based on changes
@@ -31,7 +31,7 @@ class UserJobConfig:
             'CONFIG': CONF
     }
 
-    rocket_chip_location = 'git@github.com:sagark/rocket-chip'
+    rocket_chip_location = 'git@github.com:ucb-bar/rocket-chip'
     tests_location = 'git@github.com:ucb-bar/esp-tests.git'
 
     # TODO: this should probably be set on a per-project basis, so that users
