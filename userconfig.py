@@ -36,7 +36,7 @@ class UserJobConfig:
 
     # TODO: this should probably be set on a per-project basis, so that users
     # trying out a design will all dump things into one shared dir
-    distribute_rocket_chip_loc = "/nscratch/sagark/celery-workspace/distribute"
+    distribute_rocket_chip_loc = "/nscratch/bar-crawl/hwacha"
 
     # set of tests to run
     # remove/comment out items that you don't wish to run
@@ -45,6 +45,6 @@ class UserJobConfig:
             'emulator', 
             'vsim', 
             'vcs-sim-rtl', 
-            'dc-syn',
+#            'dc-syn',
     ]
 
