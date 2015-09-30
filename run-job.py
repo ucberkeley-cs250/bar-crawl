@@ -7,7 +7,7 @@ from celery.result import ResultSet
 from fabric.api import *
 from fabric.tasks import execute
 from copy import copy
-from tasks import cpptest, vsimtest, compile_and_copy, vcs_sim_rtl_test
+from tasks import *
 import os
 import datetime
 
@@ -15,6 +15,26 @@ from userconfig import UserJobConfig
 from crawlutils import *
 
 userjobconfig = UserJobConfig()
+
+workers = app.control.inspect().ping()
+if workers == None:
+    print("There are no workers running. Please start workers.")
+    exit(1)
+
+# check that we're using workers consistent with our version of bar-crawl
+h = get_hash(os.getcwd())[:8]
+mismatch_found = False
+for worker in workers:
+    if h not in worker:
+        print("Mismatched worker found: " + worker)
+        mismatch_found = True
+
+if mismatch_found:
+    msg = """bar-crawl cannot run with mismatched workers. This probably means that you 
+need to update your local version of bar-crawl."""
+    print(msg)
+    exit(1)
+
 
 # launchtime
 dtstr = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')

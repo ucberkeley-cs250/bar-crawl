@@ -5,7 +5,7 @@ import time
 import os
 import random
 import string
-
+from crawlutils import get_hash
 
 # list of hosts to run remote commands on
 fast = ['a7', 'a8', 'a5', 'a6']
@@ -19,6 +19,10 @@ backuphosts = env.hosts
 
 bar_crawl_dir = os.getcwd()
 redis_install = '/nscratch/sagark/celery-distr/redis/redis.conf'
+
+# prefix worker name with hash of current version of bar-crawl to keep things
+# consistent for users
+h = get_hash(bar_crawl_dir)[:8]
 
 def celery_master():
     """ Celery master needs to launch redis, flower """
@@ -36,9 +40,9 @@ def celery_worker():
             # see http://docs.celeryproject.org/en/latest/userguide/optimizing.html#prefork-pool-prefetch-settings
             # some tests may run for a long time
             if env.host_string in fast:
-                run('celery multi start 1.%h -A tasks --purge --loglevel=info -Ofair -P processes -c 12')
+                run('celery multi start ' + h + '-1%h -A tasks --purge --loglevel=info -Ofair -P processes -c 12')
             else:
-                run('celery multi start 1.%h -A tasks --purge --loglevel=info -Ofair -P processes -c 1')
+                run('celery multi start ' + h + '-1%h -A tasks --purge --loglevel=info -Ofair -P processes -c 1')
 
 
 def celery_flower():
