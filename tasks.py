@@ -89,6 +89,8 @@ def compile_and_copy(self, design_name, hashes, jobinfo, run_t, userjobconfig):
 
     """ run dc-syn """
     if 'dc-syn' in userjobconfig.tests:
+        with lcd(rc_dir + '/vlsi'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
+            rl2.local_logged('make 2>&1')
         # vlsi, dc
         with lcd(rc_dir + '/vlsi/dc-syn'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
             rl2.local_logged('make 2>&1')

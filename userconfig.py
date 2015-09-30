@@ -45,6 +45,6 @@ class UserJobConfig:
             'emulator', 
             'vsim', 
             'vcs-sim-rtl', 
-#            'dc-syn',
+            'dc-syn',
     ]
 
