@@ -39,10 +39,7 @@ def celery_worker():
             # we should use -Ofair
             # see http://docs.celeryproject.org/en/latest/userguide/optimizing.html#prefork-pool-prefetch-settings
             # some tests may run for a long time
-            #if env.host_string in fast:
-            run('celery multi start ' + h + '-1 -E --pidfile=asdf-1%h.pid --logfile=asdf-1%h.log -A tasks --purge -l INFO -Ofair -P processes -c 12')
-            #else:
-            #    run('celery multi start ' + h + '-1%h -A tasks --purge --loglevel=info -Ofair -P processes -c 1')
+            run('celery multi start ' + h + '-1 -E --pidfile=' + h + '-1%h.pid --logfile=' + h + '-1%h.log -A tasks --purge -l INFO -Ofair -P processes -c 12')
 
 
 def celery_flower():
