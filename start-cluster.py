@@ -25,7 +25,7 @@ redis_install = '/nscratch/sagark/celery-distr/redis/redis.conf'
 h = get_hash(bar_crawl_dir)[:8]
 
 def celery_master():
-    """ Celery master needs to launch redis, flower """
+    """ Celery master needs to launch redis """
     with lcd(bar_crawl_dir):
         local('uname -a')
         local('redis-server ' + redis_install)
@@ -39,17 +39,17 @@ def celery_worker():
             # we should use -Ofair
             # see http://docs.celeryproject.org/en/latest/userguide/optimizing.html#prefork-pool-prefetch-settings
             # some tests may run for a long time
-            if env.host_string in fast:
-                run('celery multi start ' + h + '-1 -E --pidfile=asdf-1%h.pid --logfile=asdf-1%h.log -A tasks --purge -l INFO -Ofair -P processes -c 12')
-            else:
-                run('celery multi start ' + h + '-1%h -A tasks --purge --loglevel=info -Ofair -P processes -c 1')
+            #if env.host_string in fast:
+            run('celery multi start ' + h + '-1 -E --pidfile=asdf-1%h.pid --logfile=asdf-1%h.log -A tasks --purge -l INFO -Ofair -P processes -c 12')
+            #else:
+            #    run('celery multi start ' + h + '-1%h -A tasks --purge --loglevel=info -Ofair -P processes -c 1')
 
 
 def celery_flower():
     with lcd(bar_crawl_dir):
         print("waiting 5s for workers to settle")
         time.sleep(5)
-        local('screen -A -m -d -S flower flower -A tasks --port=8080 &')
+        local('screen -A -m -d -S flower flower -A tasks --port=8080 --persistent &')
 
 def one_host():
     env.hosts = []

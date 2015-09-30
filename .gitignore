@@ -2,3 +2,4 @@
 *.rdb
 *.log
 *.pid
+flower
