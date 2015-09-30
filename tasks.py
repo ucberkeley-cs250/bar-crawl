@@ -16,7 +16,7 @@ sample = "./emulator-Top-DefaultCPPConfig +dramsim +max-cycles=100000000 +verbos
 #app.conf.CELERYD_PREFETCH_MULTIPLIER=10
 
 @app.task(bind=True)
-def compile_and_copy(self, design_name, hashes, jobinfo, run_t, userjobconfig):
+def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
     rs = ResultSet([])
 
     rl = RedisLogger(design_name)
@@ -69,7 +69,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, run_t, userjobconfig):
             rl.local_logged('cp -r emulator/emulator/dramsim2_ini vsim/vsim/')
 
         # start vsim tasks
-        for y in run_t:
+        for y in userjobconfig.runtests:
             rs.add(vsimtest.delay(design_name, y, jobinfo, userjobconfig))
 
 
@@ -84,7 +84,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, run_t, userjobconfig):
         with lcd(userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name):
             rl.local_logged('cp -r emulator/emulator/dramsim2_ini vcs-sim-rtl/vcs-sim-rtl/')
 
-        for y in run_t:
+        for y in userjobconfig.runtests:
             rs.add(vcs_sim_rtl_test.delay(design_name, y, jobinfo, userjobconfig))
 
     """ run dc-syn """

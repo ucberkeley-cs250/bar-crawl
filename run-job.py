@@ -84,27 +84,9 @@ def build_riscv_tests():
 do_jackhammer()
 build_riscv_tests()
 
-#### TODO should get the list of tests from Testing.scala
-tfile = open('testnames', 'r')
-run_t = map(lambda x: x.strip(), tfile.readlines())
-tfile.close()
-
-print run_t
-
 compiles = ResultSet([])
 for x in designs:
-    compiles.add(compile_and_copy.delay(x, hashes, jobdirname, run_t, userjobconfig))
+    compiles.add(compile_and_copy.delay(x, hashes, jobdirname, userjobconfig))
 
 y = compiles.get()
-print y[0].get()
-
-
-#rs = ResultSet([])
-#for x in designs:
-#    for y in run_t:
-#        rs.add(vsimtest.delay(x, y, jobdirname))
-#        rs.add(vcs_sim_rtl_test.delay(x, y, jobdirname))
-#
-#z = rs.get()
-#print z
-#print len(z)
+#print y[0].get()
