@@ -75,6 +75,11 @@ def do_jackhammer():
         for y in userjobconfig.tests:
             local('mkdir -p ' + fulljobdir + '/' + x + '/' + y)
 
+    # directory to store patches if there are local changes
+    patchdir = fulljobdir + '/patches'
+    local('mkdir -p ' + patchdir)
+    #generate_recursive_patches(master_rocket_chip_dir, patchdir)
+
 def build_riscv_tests():
     with lcd(userjobconfig.distribute_rocket_chip_loc), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
         local('git clone ' + userjobconfig.tests_location)

@@ -77,3 +77,53 @@ class RedisLoggerStream:
     def clear_log(self):
         self.red.delete(self.design_name)
 
+subdiffendmarker = "END-------------------"
+
+def generate_recursive_patches(master_dir, patch_dir):
+    # TODO:
+    #  currently does not handle untracked files
+    
+    # rocket-chip diff
+    with lcd(master_dir):
+        h = local('git diff > ' + patch_dir + '/rocket-chip.patch', capture=True)
+
+    # submodule diffs
+    with lcd(master_dir):
+        h = local('git submodule foreach --recursive "git diff; echo \'' + subdiffendmarker + '\'" > ' + patch_dir + '/submodules.patch', capture=True)
+
+
+
+def apply_recursive_patches(master_dir, patch_dir, apply_to_dir):
+    # TODO handle case with empty patches
+    #
+    # rocketchip
+    with lcd(apply_to_dir), settings(warn_only=True):
+        local('git apply ' + patch_dir + '/rocket-chip.patch')
+
+    # submodules
+    # there's probably a better way to do this...
+    # build dictionary of diffs
+    f = open(patch_dir + '/submodules.patch', 'r')
+    d = f.read()
+    f.close()
+
+    diffs = {}
+    # code lines start with +, -, or a space, so this is okay
+    subdiff = d.split("\n" + subdiffendmarker)
+    # only keep parts of the output that have a diff output
+    #print subdiff
+    diffstoprocess = filter(lambda x: "diff" in x, subdiff)
+    tempfile = patch_dir + '/apply_sub.patch'
+    for diff in diffstoprocess:
+        d = diff.strip().split("\n")
+        relative_path = d[0].split(" ")[1].replace("'", "")
+        print relative_path
+        actualdiff = d[1:]
+        f = open(tempfile, 'w')
+        f.write("\n".join(actualdiff) + "\n")
+        f.close()
+        print "----"
+
+        with lcd(apply_to_dir + "/" + relative_path):
+            local('git apply ' + tempfile)
+
