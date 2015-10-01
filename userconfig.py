@@ -1,4 +1,4 @@
-
+import os
 
 """ USER CONFIG. Need to wrap this up and send to subtasks """
 class UserJobConfig:
@@ -42,15 +42,23 @@ class UserJobConfig:
         # NOTE: emulator is non-optional. see note in tasks.py
         self.tests = [
                 'emulator', 
-                'vsim', 
-                'vcs-sim-rtl', 
-                'dc-syn',
+#                'vsim', 
+#                'vcs-sim-rtl', 
+#                'dc-syn',
         ]
 
         # reads out the list of tests to run from the testnames file
         tfile = open('testnames', 'r')
         self.runtests = map(lambda x: x.strip(), tfile.readlines())
         tfile.close()
+
+        self.enableEMAIL = False
+        # you need to obtain a mailgun API key for emails
+        if (self.enableEMAIL):
+            self.mailgun_api = os.environ['MAILGUN_API']
+            self.email_addr = "sagark@eecs.berkeley.edu"
+            self.cc_addr = "karandikarsagar@gmail.com"
+
 
     def __str__(self):
         return self.__repr__()
