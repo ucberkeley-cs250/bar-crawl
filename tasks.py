@@ -40,6 +40,10 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
         rl.local_logged('cp ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + userjobconfig.CONF + '.scala ' + configs_dir + '/')
     with lcd(rc_dir + '/vlsi'):
         rl.local_logged('git submodule update --init --recursive')
+
+    # now, apply patches
+    apply_recursive_patches(userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/patches', rc_dir)
+
     # at this point, design_dir/rocket-chip will contain everything we need to
     # do the various compiles
 

@@ -93,7 +93,7 @@ def generate_recursive_patches(master_dir, patch_dir):
 
 
 
-def apply_recursive_patches(master_dir, patch_dir, apply_to_dir):
+def apply_recursive_patches(patch_dir, apply_to_dir):
     # TODO handle case with empty patches
     #
     # rocketchip
