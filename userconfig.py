@@ -52,10 +52,14 @@ class UserJobConfig:
         self.runtests = map(lambda x: x.strip(), tfile.readlines())
         tfile.close()
 
-        self.enableEMAIL = False
+        self.enableEMAIL = True
         # you need to obtain a mailgun API key for emails
         if (self.enableEMAIL):
-            self.mailgun_api = os.environ['MAILGUN_API']
+            """ Get the mailgun@bar-crawl.sagark.org API key.
+            Change this if you don't have access to /nscratch"""
+            apifile = open('/nscratch/bar-crawl/mailgun-api', 'r')
+            self.mailgun_api = apifile.readlines()[0].strip()
+            apifile.close()
             self.email_addr = "sagark@eecs.berkeley.edu"
             self.cc_addr = "karandikarsagar@gmail.com"
 

@@ -131,11 +131,11 @@ def apply_recursive_patches(patch_dir, apply_to_dir):
 def email_user(userjobconfig, jobinfo):
     outputdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo 
     cmdstr = """curl -s --user 'api:{}' \
-    https://api.mailgun.net/v3/sandbox19742.mailgun.org/messages \
-    -F from='bar-crawl <mailgun@sandbox19742.mailgun.org>' \
+    https://api.mailgun.net/v3/bar-crawl.sagark.org/messages \
+    -F from='bar-crawl <mailgun@bar-crawl.sagark.org>' \
     -F to={} \
     -F to={} \
-    -F subject='Job completed' \
-    -F text='Your job has completed.\n You can find results in: {}'""".format(userjobconfig.mailgun_api, userjobconfig.email_addr, userjobconfig.cc_addr, outputdir)
+    -F subject='bar-crawl: Job Completed' \
+    -F text='Your job has completed!\nYou can find results in: {}'""".format(userjobconfig.mailgun_api, userjobconfig.email_addr, userjobconfig.cc_addr, outputdir)
     local(cmdstr)
 
