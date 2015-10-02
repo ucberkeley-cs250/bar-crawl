@@ -108,7 +108,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
 
     #rl.clear_log() # clear the redis log list
     if userjobconfig.enableEMAIL:
-        email_user(userjobconfig, jobinfo)
+        email_user(userjobconfig, jobinfo, design_name)
     return rs
 
 

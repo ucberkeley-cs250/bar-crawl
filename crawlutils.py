@@ -128,14 +128,17 @@ def apply_recursive_patches(patch_dir, apply_to_dir):
             local('git apply ' + tempfile)
 
 
-def email_user(userjobconfig, jobinfo):
+def email_user(userjobconfig, jobinfo, design_name):
     outputdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo 
     cmdstr = """curl -s --user 'api:{}' \
     https://api.mailgun.net/v3/bar-crawl.sagark.org/messages \
     -F from='bar-crawl <mailgun@bar-crawl.sagark.org>' \
     -F to={} \
     -F to={} \
-    -F subject='bar-crawl: Job Completed' \
-    -F text='Your job has completed!\nYou can find results in: {}'""".format(userjobconfig.mailgun_api, userjobconfig.email_addr, userjobconfig.cc_addr, outputdir)
+    -F subject='bar-crawl: Design {} Completed' \
+    -F text='Design {} for your job has completed!\nYou can find results in: {}'""".format(
+            userjobconfig.mailgun_api, userjobconfig.email_addr, 
+            userjobconfig.cc_addr, design_name, design_name, outputdir + 
+            '/' + design_name)
     local(cmdstr)
 
