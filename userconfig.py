@@ -38,6 +38,8 @@ class UserJobConfig:
         # easier to identify. this tag will be tacked onto the end of the job
         # output directory name. It can only contain letters, numbers, and
         # dashes
+        #
+        # this is especially useful if you have uncommitted changes
         self.human_tag = "-test"
         for x in self.human_tag:
             if x not in string.ascii_letters + string.digits + "-":

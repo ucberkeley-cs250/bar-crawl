@@ -73,6 +73,7 @@ username # your username
 master_rocket_chip_dir # your rocket-chip working directory
 rocket_chip_location # github repo for rocket chip
 tests # comment out tests you don't want to run
+human_tag # user-specifiable string that will be added to the end of the job name, especially useful for jobs that run using uncommitted changes
 
 TODO: add info about setting up email
 ```
