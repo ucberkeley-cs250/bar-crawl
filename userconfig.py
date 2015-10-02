@@ -22,7 +22,7 @@ class UserJobConfig:
         self.env_LD_LIBRARY = self.rvenv+"/lib"
 
         self.MODEL='Top'
-        self.CONF = 'DefaultVLSIConfig' # this is the overall config name (as opposed to EOS24Config0, EOS24Config1, etc)
+        self.CONF = 'EOS24Config' # this is the overall config name (as opposed to EOS24Config0, EOS24Config1, etc)
 
         self.shell_env_args = {
                 'RISCV': self.env_RISCV,

@@ -95,7 +95,8 @@ Starting a Cluster:
 
 TODO
 
-Prereqs (TODO):
+Misc (TODO):
 -----------------------
 - TODO: Install celery, fabric or just add mine to PYTHONPATH
 - Use ssh forwarding
+- revoking tests / test timeout
