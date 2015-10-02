@@ -43,7 +43,7 @@ dtstr = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 # and to name output directories
 hashes = get_hashes(userjobconfig.master_rocket_chip_dir)
 
-jobdirname = dtstr + '-' + hashes['rocket-chip'][:8]
+jobdirname = dtstr + '-' + hashes['rocket-chip'][:8] + userjobconfig.human_tag
 fulljobdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobdirname
 local('mkdir -p ' + fulljobdir)
 

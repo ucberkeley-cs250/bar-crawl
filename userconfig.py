@@ -1,4 +1,5 @@
 import os
+import string
 
 """ USER CONFIG. Need to wrap this up and send to subtasks """
 class UserJobConfig:
@@ -32,6 +33,17 @@ class UserJobConfig:
 
         self.rocket_chip_location = 'git@github.com:ucb-bar/rocket-chip'
         self.tests_location = 'git@github.com:ucb-bar/esp-tests.git'
+
+        # if you want, you can set a tag here to make your output directory
+        # easier to identify. this tag will be tacked onto the end of the job
+        # output directory name. It can only contain letters, numbers, and
+        # dashes
+        self.human_tag = "-test"
+        for x in self.human_tag:
+            if x not in string.ascii_letters + string.digits + "-":
+                print "ERROR, character is not allowed in human_tag: " + x
+                exit(0)
+
 
         # TODO: this should probably be set on a per-project basis, so that users
         # trying out a design will all dump things into one shared dir
