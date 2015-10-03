@@ -100,3 +100,9 @@ Misc (TODO):
 - TODO: Install celery, fabric or just add mine to PYTHONPATH
 - Use ssh forwarding
 - revoking tests / test timeout
+- sudo apt-get install python-dev before installing pip celery
+- easy_install --prefix=/nscratch/sagark/py_inst celery[redis]
+- easy_install --prefix=/nscratch/sagark/py_inst flower
+- manually install redis from source
+
+
