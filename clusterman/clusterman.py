@@ -38,6 +38,7 @@ def celery_master():
 pidfilename = 'clusterman/pid/' + h + '-1%h.pid'
 logfilename = 'clusterman/log/' + h + '-1%h.log'
 
+@parallel
 def celery_worker():
     with settings(warn_only=True):
         # distribute data to the node
