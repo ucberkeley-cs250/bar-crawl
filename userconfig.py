@@ -12,7 +12,7 @@ class UserJobConfig:
         # your rocket-chip work directory on the master node
         # bar-crawl will look at commit hashes here to make sure it's testing the
         # right code with the right toolchain/tests
-        self.master_rocket_chip_dir = "/scratch/sagark/buildfpu-test"
+        self.master_rocket_chip_dir = "/scratch/sagark/hwacha-celery/rocket-chip"
 
         # risc-v tools installation. should be on nscratch
         # TODO: configure based on changes
@@ -56,9 +56,9 @@ class UserJobConfig:
         # NOTE: emulator is non-optional. see note in tasks.py
         self.tests = [
                 'emulator', 
-#                'vsim', 
-#                'vcs-sim-rtl', 
-#                'dc-syn',
+                'vsim', 
+                'vcs-sim-rtl', 
+                'dc-syn',
         ]
 
         # reads out the list of tests to run from the testnames file

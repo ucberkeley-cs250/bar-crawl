@@ -61,11 +61,11 @@ def restore_hosts():
 def celery_shutdown():
     with settings(warn_only=True):
         with cd(bar_crawl_dir):
-            run('celery multi kill 1.%h 2.%h 3.%h 4.%h')
-            run('pkill python')
-            run('pkill celery')
+            run('celery multi stop ' + h + '-1 --pidfile=' + h + '-1%h.pid')
+            #run('pkill python')
+            #run('pkill celery')
 
-def cleanup():
-    """ Kill flower """
-    local('pkill flower')
-    pass
+def flower_shutdown():
+    """ Kill flower. Not used currently. """
+    with settings(warn_only=True):
+        local('pkill flower')
