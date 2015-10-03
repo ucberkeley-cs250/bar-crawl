@@ -1,10 +1,13 @@
 """ Start up the cluster. Run from the master node. """
-
 from fabric.api import *
 import time
-import os
+import os, sys
 import random
 import string
+
+#parentdir = os.path.dirname(__file__)
+sys.path.insert(0,'..')
+
 from crawlutils import get_hash
 
 # list of hosts to run remote commands on
@@ -17,7 +20,7 @@ no_ecad = ['beckton']
 env.hosts = fast
 backuphosts = env.hosts
 
-bar_crawl_dir = os.getcwd()
+bar_crawl_dir = os.getcwd() + "/.."
 redis_install = '/nscratch/sagark/celery-distr/redis/redis.conf'
 
 # prefix worker name with hash of current version of bar-crawl to keep things
@@ -32,6 +35,9 @@ def celery_master():
         local('ps -A | grep redis-server')
 
 
+pidfilename = 'clusterman/pid/' + h + '-1%h.pid'
+logfilename = 'clusterman/log/' + h + '-1%h.log'
+
 def celery_worker():
     with settings(warn_only=True):
         # distribute data to the node
@@ -39,7 +45,7 @@ def celery_worker():
             # we should use -Ofair
             # see http://docs.celeryproject.org/en/latest/userguide/optimizing.html#prefork-pool-prefetch-settings
             # some tests may run for a long time
-            run('celery multi start ' + h + '-1 -E --pidfile=' + h + '-1%h.pid --logfile=' + h + '-1%h.log -A tasks --purge -l INFO -Ofair -P processes -c 12')
+            run('celery multi start ' + h + '-1 -E --pidfile=' + pidfilename +  ' --logfile=' + logfilename + ' -A tasks --purge -l INFO -Ofair -P processes -c 12')
 
 
 def celery_flower():
@@ -61,7 +67,7 @@ def restore_hosts():
 def celery_shutdown():
     with settings(warn_only=True):
         with cd(bar_crawl_dir):
-            run('celery multi stop ' + h + '-1 --pidfile=' + h + '-1%h.pid')
+            run('celery multi stop ' + h + '-1 --pidfile=' + pidfilename)
             #run('pkill python')
             #run('pkill celery')
 
