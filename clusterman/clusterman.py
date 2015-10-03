@@ -69,8 +69,8 @@ def celery_shutdown():
     with settings(warn_only=True):
         with cd(bar_crawl_dir):
             run('celery multi stop ' + h + '-1 --pidfile=' + pidfilename)
-            #run('pkill python')
-            #run('pkill celery')
+            run('pkill python')
+            run('pkill celery')
 
 def flower_shutdown():
     """ Kill flower. Not used currently. """

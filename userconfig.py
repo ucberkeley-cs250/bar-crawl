@@ -58,7 +58,7 @@ class UserJobConfig:
                 'emulator', 
                 'vsim', 
                 'vcs-sim-rtl', 
-                'dc-syn',
+#                'dc-syn',
         ]
 
         # reads out the list of tests to run from the testnames file
@@ -82,6 +82,9 @@ class UserJobConfig:
         return self.__repr__()
 
     def __repr__(self):
-        st = """Using Master at: {}
-        Using $RISCV at: {}""".format(self.master_rocket_chip_dir, self.rvenv)
-        return st
+        asdict = self.__dict__
+        keys = filter(lambda x: x != 'runtests', asdict.keys())
+        p = { k: asdict[k] for k in keys }
+        #st = """Using Master at: {}
+        #Using $RISCV at: {}""".format(self.master_rocket_chip_dir, self.rvenv)
+        return str(p)
