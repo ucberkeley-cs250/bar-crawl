@@ -139,7 +139,9 @@ def vsim(design_name, test_to_run, jobinfo, userjobconfig):
         res = local(samplevcs.format(design_name, test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
-        return "PASS"
+        q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
+        # return "PASS" and # of cycles
+        return ["PASS", q.stdout.split()[1]]
 
 # 5 min timeout per test
 @app.task(bind=True, soft_time_limit=300)
@@ -161,7 +163,9 @@ def vcs_sim_rtl(design_name, test_to_run, jobinfo, userjobconfig):
         res = local(samplevcs_sim_rtl.format(design_name, test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
-        return "PASS"
+        q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
+        # return "PASS" and # of cycles
+        return ["PASS", q.stdout.split()[1]]
 
 # 5 min timeout per test
 @app.task(bind=True, soft_time_limit=300)
