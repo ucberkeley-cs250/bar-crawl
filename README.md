@@ -104,5 +104,7 @@ Misc (TODO):
 - easy_install --prefix=/nscratch/sagark/py_inst celery[redis]
 - easy_install --prefix=/nscratch/sagark/py_inst flower
 - manually install redis from source
-
+- "when things go wrong" section
+    - check the log for that worker, since celery exceptions like 
+    WorkerLostError arise from other exceptions raised in the worker thread
 

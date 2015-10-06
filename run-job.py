@@ -43,6 +43,13 @@ dtstr = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 # and to name output directories
 hashes = get_hashes(userjobconfig.master_rocket_chip_dir)
 
+# check if the riscv-tools we're supposed to be using matches what's installed:
+if hashes['riscv-tools'] != userjobconfig.rvenv_installed_hash:
+    print("riscv-tools hash mismatch:")
+    print("Installed: " + userjobconfig.rvenv_installed_hash)
+    print("Required:  " + hashes['riscv-tools'])
+    exit(1)
+
 jobdirname = dtstr + '-' + hashes['rocket-chip'][:8] + userjobconfig.human_tag
 fulljobdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobdirname
 local('mkdir -p ' + fulljobdir)
