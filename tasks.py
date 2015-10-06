@@ -55,9 +55,16 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
 
     # make C++ emulator
     # NOTE: This is currently required to get the dramsim2_ini directory
+    # and get list of tests to run
+    # TODO: do we need to get list of tests to run per environment?
     with lcd(rc_dir + '/emulator'), shell_env(**shell_env_args_conf):
         rl2.local_logged('make ' + cpp_emu_name + ' 2>&1')
         rl.local_logged('cp -Lr ../emulator ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/emulator/')
+
+    testslist = read_tests(rc_dir + '/emulator/generated-src/', design_name)
+
+    print("running tests:")
+    print(testslist)
 
     #TODO: run C++ emulator tests
 
@@ -73,7 +80,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
             rl.local_logged('cp -r emulator/emulator/dramsim2_ini vsim/vsim/')
 
         # start vsim tasks
-        for y in userjobconfig.runtests:
+        for y in testslist:
             rs.add(vsimtest.delay(design_name, y, jobinfo, userjobconfig))
 
 
@@ -88,7 +95,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
         with lcd(userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name):
             rl.local_logged('cp -r emulator/emulator/dramsim2_ini vcs-sim-rtl/vcs-sim-rtl/')
 
-        for y in userjobconfig.runtests:
+        for y in testslist:
             rs.add(vcs_sim_rtl_test.delay(design_name, y, jobinfo, userjobconfig))
 
     """ run dc-syn """

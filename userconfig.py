@@ -12,7 +12,7 @@ class UserJobConfig:
         # your rocket-chip work directory on the master node
         # bar-crawl will look at commit hashes here to make sure it's testing the
         # right code with the right toolchain/tests
-        self.master_rocket_chip_dir = "/scratch/sagark/hwacha-celery/rocket-chip"
+        self.master_rocket_chip_dir = "/scratch/sagark/with-pred/rocket-chip"
 
         # risc-v tools installation. should be on nscratch
         # TODO: configure based on changes
@@ -31,7 +31,7 @@ class UserJobConfig:
                 'CONFIG': self.CONF
         }
 
-        self.rocket_chip_location = 'git@github.com:ucb-bar/rocket-chip'
+        self.rocket_chip_location = 'git@github.com:sagark/rocket-chip'
         self.tests_location = 'git@github.com:ucb-bar/esp-tests.git'
 
         # if you want, you can set a tag here to make your output directory
@@ -40,7 +40,7 @@ class UserJobConfig:
         # dashes
         #
         # this is especially useful if you have uncommitted changes
-        self.human_tag = "-sagar-runtest-collect"
+        self.human_tag = "-sagar-read-tests-from-file"
         for x in self.human_tag:
             if x not in string.ascii_letters + string.digits + "-":
                 print "ERROR, character is not allowed in human_tag: " + x
@@ -60,11 +60,6 @@ class UserJobConfig:
                 'vcs-sim-rtl', 
 #                'dc-syn',
         ]
-
-        # reads out the list of tests to run from the testnames file
-        tfile = open('testnames', 'r')
-        self.runtests = map(lambda x: x.strip(), tfile.readlines())
-        tfile.close()
 
         self.enableEMAIL = True
         # you need to obtain a mailgun API key for emails

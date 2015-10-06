@@ -4,7 +4,42 @@ from fabric.api import *
 from fabric import operations
 import sys
 
+def read_tests(generated_src_dir, design_name):
+    """ This will read the tests to run from
+        generated_src_dir/Top.design_name.d
+    and return a list of tests.
 
+    Currently, it only runs the asm tests.
+    """
+    f = generated_src_dir + "/Top." + design_name + ".d"
+    a = open(f, 'r')
+    b = a.readlines()
+    a.close()
+
+    equalsmode = False
+    is_asm = False
+    asm_tests = []
+    other_tests = []
+
+    for line in b:
+        if equalsmode:
+            if line.startswith("\t"):
+                if is_asm:
+                    asm_tests.append(line.replace("\\", "").strip())
+                else:
+                    other_tests.append(line.replace("\\", "").strip())
+            else:
+                equalsmode = False
+        if "=" in line:
+            equalsmode = True
+            if "asm" in line:
+                is_asm = True
+            else:
+                is_asm = False
+
+
+    # we ignore benchmarks for now, which are in other:
+    return asm_tests
 
 """ Utils/Globals below"""
 def get_hash(p):
@@ -135,10 +170,10 @@ def email_user(userjobconfig, jobinfo, design_name):
     -F from='bar-crawl <mailgun@bar-crawl.sagark.org>' \
     -F to={} \
     -F to={} \
-    -F subject='bar-crawl: Design {} Completed' \
-    -F text='Design {} for your job has completed!\nYou can find results in: {}'""".format(
+    -F subject='bar-crawl: Design {} in Job {} has Completed' \
+    -F text='Design {} for job {} has completed!\nYou can find results in: {}'""".format(
             userjobconfig.mailgun_api, userjobconfig.email_addr, 
-            userjobconfig.cc_addr, design_name, design_name, outputdir + 
+            userjobconfig.cc_addr, design_name, jobinfo, design_name, jobinfo,  outputdir + 
             '/' + design_name)
     local(cmdstr)
 
