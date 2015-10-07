@@ -104,7 +104,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
             rl2.local_logged('make 2>&1')
         # vlsi, dc
         with lcd(rc_dir + '/vlsi/dc-syn'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
-            rl2.local_logged('make 2>&1')
+            rl2.local_logged('make -j4 2>&1')
             rl.local_logged('cp -r current-dc/reports ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
             rl.local_logged('cp -r current-dc/results ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
 
