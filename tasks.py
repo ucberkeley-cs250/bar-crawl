@@ -65,10 +65,11 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
 
     print("running tests:")
     print(testslist)
-
-    # run C++ emulator tasks
-    for y in testslist:
-        rs.add(emulatortest.delay(design_name, y, jobinfo, userjobconfig))
+    
+    """ Run C++ emulator """
+    if 'emulator' in userjobconfig.tests:
+        for y in testslist:
+            rs.add(emulatortest.delay(design_name, y, jobinfo, userjobconfig))
 
 
     """ Run vsim """

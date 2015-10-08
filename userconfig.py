@@ -65,7 +65,6 @@ class UserJobConfig:
 
         # set of tests to run
         # remove/comment out items that you don't wish to run
-        # NOTE: emulator is non-optional. see note in tasks.py
         self.tests = [
                 'emulator', 
                 'vsim', 
