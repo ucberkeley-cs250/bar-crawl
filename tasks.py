@@ -66,7 +66,10 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
     print("running tests:")
     print(testslist)
 
-    #TODO: run C++ emulator tests
+    # run C++ emulator tasks
+    for y in testslist:
+        rs.add(emulatortest.delay(design_name, y, jobinfo, userjobconfig))
+
 
     """ Run vsim """
     if 'vsim' in userjobconfig.tests:
@@ -104,43 +107,56 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
             rl2.local_logged('make 2>&1')
         # vlsi, dc
         with lcd(rc_dir + '/vlsi/dc-syn'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
-            rl2.local_logged('make -j4 2>&1')
+            # TODO: what does -jN do here?
+            rl2.local_logged('make 2>&1')
             rl.local_logged('cp -r current-dc/reports ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
             rl.local_logged('cp -r current-dc/results ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
 
-    #with lcd(rc_dir + '/vlsi/vcs-sim-gl-syn'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
-    #    # todo actually use the name
-    #    rl2.local_logged('make 2>&1')
-    #    # todo copy
+    if 'vcs-sim-gl-syn' in userjobconfig.tests:
+        with lcd(rc_dir + '/vlsi/vcs-sim-gl-syn'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
+            # todo actually use the name
+            rl2.local_logged('make 2>&1')
+            # todo copy
+            rl.local_logged('cp -Lr ../vcs-sim-gl-syn ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vcs-sim-gl-syn/')
+        # copy dramsim2_ini directory for vcs-sim-rtl
+        with lcd(userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name):
+            rl.local_logged('cp -r emulator/emulator/dramsim2_ini vcs-sim-gl-syn/vcs-sim-gl-syn/')
+
+        for y in testslist:
+            rs.add(vcs_sim_gl_syn_test.delay(design_name, y, jobinfo, userjobconfig))
+
 
     rl.clear_log() # clear the redis log list
     if userjobconfig.enableEMAIL:
         email_user(userjobconfig, jobinfo, design_name)
     return rs
 
+sampleemulator = "./emulator-Top-{} +dramsim +max-cycles=100000000 +verbose +loadmem=../../../../esp-tests/isa/{}.hex none 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
 
-def test1(test_to_run):
+def emulator(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
-    # todo: looks like we can't run this from any other directory, dramsim
-    # path is hardcoded?
-    with lcd(distribute_rocket_chip_loc + '/distribute/cpptest/emulator'), shell_env(RISCV=env_RISCV, PATH=env_PATH, LD_LIBRARY_PATH=env_LD_LIBRARY), settings(warn_only=True):
-        res = local(sample.format(test_to_run, test_to_run), shell='/bin/bash')
+    workdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/emulator/emulator'
+    with lcd(workdir), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
+        res = local(sampleemulator.format(design_name, test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
-        return "PASS"
+        q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
+        # return "PASS" and # of cycles
+        return ["PASS", q.stdout.split()[1]]
 
-@app.task(bind=True)
-def cpptest(self, testname):
-    rval = execute(test1, testname).values()
-    return rval
+# 5 min timeout per test
+@app.task(bind=True, soft_time_limit=300)
+def emulatortest(self, design_name, testname, jobinfo, userjobconfig):
+    try:
+        rval = execute(emulator, design_name, testname, jobinfo, userjobconfig).values()
+        return rval
+    except SoftTimeLimitExceeded:
+        return "FAILED RAN OUT OF TIME"
 
 samplevcs = "cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=../../../../esp-tests/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
 
-
 def vsim(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
-    # todo: looks like we can't run this from any other directory, dramsim
-    # path is hardcoded?
     workdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vsim/vsim'
     with lcd(workdir), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
         res = local(samplevcs.format(design_name, test_to_run, test_to_run), shell='/bin/bash')
@@ -163,8 +179,6 @@ samplevcs_sim_rtl = 'cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsi
 
 def vcs_sim_rtl(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
-    # todo: looks like we can't run this from any other directory, dramsim
-    # path is hardcoded?
     workdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vcs-sim-rtl/vcs-sim-rtl'
     with lcd(workdir), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
         res = local(samplevcs_sim_rtl.format(design_name, test_to_run, test_to_run), shell='/bin/bash')
@@ -185,5 +199,25 @@ def vcs_sim_rtl_test(self, design_name, testname, jobinfo, userjobconfig):
 
 
 samplevcs_sim_gl_syn = "cd . && ./simv-{} -ucli -do +run.tcl +dramsim +verbose +max-cycles=100000000 +loadmem=../../../../esp-tests/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+
+def vcs_sim_gl_syn(design_name, test_to_run, jobinfo, userjobconfig):
+    """ run a test """
+    workdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vcs-sim-rtl/vcs-sim-rtl'
+    with lcd(workdir), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
+        res = local(samplevcs_sim_gl_syn.format(design_name, test_to_run, test_to_run), shell='/bin/bash')
+        if res.failed:
+            return "FAIL"
+        q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
+        # return "PASS" and # of cycles
+        return ["PASS", q.stdout.split()[1]]
+
+# 5 min timeout per test
+@app.task(bind=True, soft_time_limit=300)
+def vcs_sim_gl_syn_test(self, design_name, testname, jobinfo, userjobconfig):
+    try:
+        rval = execute(vcs_sim_gl_syn, design_name, testname, jobinfo, userjobconfig).values()
+        return rval
+    except SoftTimeLimitExceeded:
+        return "FAILED RAN OUT OF TIME"
 
 

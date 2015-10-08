@@ -12,7 +12,7 @@ class UserJobConfig:
         # your rocket-chip work directory on the master node
         # bar-crawl will look at commit hashes here to make sure it's testing the
         # right code with the right toolchain/tests
-        self.master_rocket_chip_dir = "/scratch/sagark/new-pred/rocket-chip"
+        self.master_rocket_chip_dir = "/scratch/sagark/bar-crawl-test"
         # risc-v tools installation. should be on nscratch
         #
         # it is expected that you name this directory after the commit ID 
@@ -52,7 +52,7 @@ class UserJobConfig:
         # dashes
         #
         # this is especially useful if you have uncommitted changes
-        self.human_tag = "-sagar-new-pred-all"
+        self.human_tag = "-sagar-test-emulator"
         for x in self.human_tag:
             if x not in string.ascii_letters + string.digits + "-":
                 print "ERROR, character is not allowed in human_tag: " + x
@@ -71,6 +71,7 @@ class UserJobConfig:
                 'vsim', 
                 'vcs-sim-rtl', 
                 'dc-syn',
+#                'vcs-sim-gl-syn',
 #                'icc-par',
         ]
 
