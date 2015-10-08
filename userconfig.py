@@ -71,6 +71,7 @@ class UserJobConfig:
                 'vsim', 
                 'vcs-sim-rtl', 
                 'dc-syn',
+#                'icc-par',
         ]
 
         self.enableEMAIL = True

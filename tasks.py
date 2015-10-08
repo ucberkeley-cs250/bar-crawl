@@ -10,7 +10,7 @@ from copy import copy
 
 app = Celery('tasks', backend='rpc://', broker=redis_conf_string)
 
-sample = "./emulator-Top-DefaultCPPConfig +dramsim +max-cycles=100000000 +verbose +loadmem=../esp-tests/isa/{}.hex none 3>&1 1>&2 2>&3 | /nscratch/sagark/celery-workspace/test-rv/bin/spike-dasm  > ../../{}.out && [ $PIPESTATUS -eq 0 ]"
+sample = "./emulator-Top-DefaultCPPConfig +dramsim +max-cycles=100000000 +verbose +loadmem=../esp-tests/isa/{}.hex none 3>&1 1>&2 2>&3 | spike-dasm  > ../../{}.out && [ $PIPESTATUS -eq 0 ]"
 
 #app.conf.CELERY_ACKS_LATE=True
 #app.conf.CELERYD_PREFETCH_MULTIPLIER=10
@@ -134,7 +134,7 @@ def cpptest(self, testname):
     rval = execute(test1, testname).values()
     return rval
 
-samplevcs = "cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=../../../../esp-tests/isa/{}.hex 3>&1 1>&2 2>&3 | /nscratch/sagark/celery-workspace/test-rv/bin/spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+samplevcs = "cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=../../../../esp-tests/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
 
 
 def vsim(design_name, test_to_run, jobinfo, userjobconfig):
@@ -159,7 +159,7 @@ def vsimtest(self, design_name, testname, jobinfo, userjobconfig):
     except SoftTimeLimitExceeded:
         return "FAILED RAN OUT OF TIME"
 
-samplevcs_sim_rtl = 'cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=../../../../esp-tests/isa/{}.hex 3>&1 1>&2 2>&3 | /nscratch/sagark/celery-workspace/hwacha-rv/bin/spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]'
+samplevcs_sim_rtl = 'cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=../../../../esp-tests/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]'
 
 def vcs_sim_rtl(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
@@ -182,4 +182,8 @@ def vcs_sim_rtl_test(self, design_name, testname, jobinfo, userjobconfig):
         return rval
     except SoftTimeLimitExceeded:
         return "FAILED RAN OUT OF TIME"
+
+
+samplevcs_sim_gl_syn = "cd . && ./simv-{} -ucli -do +run.tcl +dramsim +verbose +max-cycles=100000000 +loadmem=../../../../esp-tests/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+
 
