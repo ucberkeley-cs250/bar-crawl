@@ -17,9 +17,26 @@ Features:
 
 * TODO: Lets users share installations of riscv-tests
 * TODO: Generate designs based on feedback from earlier jobs
+* Your feature here. Submit an [issue](http://github.com/ucb-bar/bar-crawl/issues).
+
+Setup:
+-----------------------
+
+Add the following to your `.bashrc` to get `celery` on your `PATH`/`PYTHONPATH`. This will also give you access to `flower` and `redis-server`, but you probably won't need these unless you're running your own workers:
+
+```
+export PYTHONPATH=/nscratch/sagark/py_inst/lib/python2.7/site-packages:/nscratch/sagark/py_inst:$PYTHONPATH
+export PATH=/nscratch/sagark/bin/bin:/nscratch/sagark/bin:/nscratch/sagark/py_inst/bin:~/bin:$PATH
+```
+
+Next, make sure that you have the correct version of riscv-tools installed in `/nscratch/sagark/celery-workspace/tools-installs`. Inside this directory, installs of riscv-tools are named after the latest commit in the repo from which they were installed. If you need to install a new version, make a directory named after the hash, set `$RISCV` to that directory, and then install the tools. When you run a job, bar-crawl will check the name of this directory against the commit hash of riscv-tools inside your rocket-chip working directory and exit if there is a mismatch.
+
+TODO: users need ssh-forwarding or only for bringing up workers?
 
 Workflow:
 -----------------------
+
+These are not instructions for running a job, but an overview to give you an idea of what bar-crawl does, see the next section for detailed instructions.
 
 1) bar-crawl starts in your local working copy (e.g. /scratch/USERNAME/rocket-chip), runs jackhammer there to generate a scala file containing your designs, collects version information (commit hashes) about components of your local install, and collects patches for any changes in your working copy, which it will mimic on worker nodes.
 
@@ -39,33 +56,19 @@ output_location/
       rocket-chip.patch -- contains any local changes you have to the rocket-chip repo
       submodules.patch -- contains any local changes you have to submodules (recursive)
   2015-12-30-18-56-54-a7d8s9a9/
-  riscv-tests/
   ...
+  riscv-tests/
 ``` 
-Additionally, bar-crawl will build and install riscv-tests into the shared output location.
+Additionally, bar-crawl will build and install riscv-tests into the shared output location. TODO: put this inside the job directory.
 
-3) Currently, bar-crawl reads from the included testnames file to determine which tests should be run. In the future, this will be read directly from the scala source.
+3) bar-crawl will then run the compile_and_copy task, which runs through various parts of the build and dispatches tests to workers at individual test granularity as the build progresses. Builds and test status can be monitored through the web interface on the master node (master:8080). 
 
-4) bar-crawl will then run the compile_and_copy task, which runs through various parts of the build and dispatches tests to workers at individual test granularity as the build progresses. Builds and test status can be monitored through the web interface on the master node (master:8080). 
-
-5) You can also monitor the compile tasks using the watch script. Run python watch.py and follow the prompts.
-
-Setup:
------------------------
-
-Add the following to your `.bashrc` (with my username for now) to get `celery`, `flower`, and `redis-server` on your `PATH`/`PYTHONPATH`:
-
-```
-export PYTHONPATH=/nscratch/sagark/py_inst/lib/python2.7/site-packages:/nscratch/sagark/py_inst:$PYTHONPATH
-export PATH=/nscratch/sagark/bin/bin:/nscratch/sagark/bin:/nscratch/sagark/py_inst/bin:~/bin:$PATH
-```
+4) You can also monitor the compile tasks using the watch script. Run python watch.py and follow the prompts.
 
 How to use:
 -----------------------
 
-0) Choose a master node and login
-
-1) Clone bar-crawl into `/nscratch/YOUR_USERNAME/bar-crawl`
+1) Get a copy of bar-crawl.
 
 (The rest of this assumes the workers are already running. See below for instructions
 for starting a cluster)
@@ -76,22 +79,33 @@ for starting a cluster)
 username # your username
 master_rocket_chip_dir # your rocket-chip working directory
 rocket_chip_location # github repo for rocket chip
-tests # comment out tests you don't want to run
-human_tag # user-specifiable string that will be added to the end of the job name, especially useful for jobs that run using uncommitted changes
+tests # comment out parts of the flow that you don't want to run
+human_tag # user-specifiable string that will be added to the end of the job name, to let you easily identify the job
 
 TODO: add info about setting up email
 ```
 
-bar-crawl will take the latest commit in master_rocket_chip_dir, generate a set of patches against that commit for any uncommitted changes, and use those to run your distributed tests. bar-crawl pulls from GitHub, so you'll need to make sure that the latest commit on your working copy is pushed to GitHub (but you can also have local changes, which will be mirrored on the workers).
+bar-crawl will take the latest commit in master_rocket_chip_dir, generate a set of patches against that commit for any uncommitted changes (except uncommitted submodule bumps, a limitation of git patches), and use those to run your distributed tests. bar-crawl pulls from GitHub, so you'll need to make sure that the latest commit on your working copy is pushed to GitHub (but you can also have local changes, which will be mirrored on the workers). Pulling from GitHub allows you to always test against a "fresh-copy" + patch and means that you don't have to make changes to your working copy (e.g. running make clean) to reduce the amount of data transfer. See the Patching section for a listing of the changes that the bar-crawl patching mechanism can/cannot handle.
 
-3) If you want to view the web-ui, run the access-web.sh script on your 
-machine, then open localhost:8080 in your browser
+3) If you want to view the web-ui, open localhost:8080 on a8 (the current bar-crawl-web host). This page is not publicly visible - a tunnel script is included in `clusterman/access-web.sh`.
 
 4) Start the job using
 
 ```
 python run-job.py
 ```
+
+Appendices:
+------------------------
+
+
+Patching:
+-------------------------
+To make it easy to reproduce experiments, versioning of source files used for tests is done by combining a patch of your local changes and a hash from a GitHub repo. The patch mechanism:
+
+* Can distribute changes to tracked files in your working directory and submodules
+* Cannot distribute uncommitted/unpushed submodule version bumps (a limitation of git patches, will be eventually fixed manually)
+* Cannot distribute untracked files (a TODO)
 
 
 Starting a Cluster:
