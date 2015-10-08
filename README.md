@@ -1,14 +1,15 @@
 bar-crawl: Berkeley Architecture Research - Cluster for Running Asic WorkLoads
 ==============================================================================
 
-bar-crawl is a distributed build/design space exploration tool for rocket-chip. It uses [jackhammer](http://github.com/ucb-bar/jackhammer) to generate designs from a set of constraints and uses the [Celery Framework](http://www.celeryproject.org/) to distribute jobs across an arbitrary number of machines.
+bar-crawl is a distributed build/design space exploration tool for rocket-chip. It uses [jackhammer](http://github.com/ucb-bar/jackhammer) to generate designs from a set of constraints and uses the [Celery Framework](http://www.celeryproject.org/) to distribute jobs across an arbitrary number of machines. It is meant to be used in "live" development, while preserving reproducability efficiently (by preserving hashes and patches of the code and tools used to run jobs).
+
 
 Features:
 -----------------------
 
 * Job tracking through a web interface (with [bar-crawl-web](https://github.com/ucb-bar/bar-crawl-web))
-* Fine-grained management of tests, since a task is generated per test per test platform per design
-* A "watch" script to let you access output from compile jobs on worker nodes, without writing all output to a file.
+* Fine-grained management of tests, since a task is generated per test (e.g. rv64ui-p-add), per test platform (e.g. vsim), per design (e.g. EOS24Config0).
+* A "watch" script to let you access output from compile jobs on worker nodes, without writing all output to a file. This lets you easily track "stuck" jobs that are running remotely.
 * Easily scale-up/down machines in your cluster, while jobs are running
 * Lets users share installations of riscv-tools, but ensures that consistent versions are used based on hashes in your working copy
 * WIP: Store important features from results into a DB for easy analysis. You can currently access a grid of test results/cycle counts for your job and export CSV results at a8.millennium.berkeley.edu:8080/jobs?limit=10000&jobid=JOB_NAME. For example:
@@ -17,21 +18,10 @@ Features:
 
 * TODO: Lets users share installations of riscv-tests
 * TODO: Generate designs based on feedback from earlier jobs
+* TODO: Define queues to dispatch tasks to particular machines
 * Your feature here. Submit an [issue](http://github.com/ucb-bar/bar-crawl/issues).
 
-Setup:
------------------------
 
-Add the following to your `.bashrc` to get `celery` on your `PATH`/`PYTHONPATH`. This will also give you access to `flower` and `redis-server`, but you probably won't need these unless you're running your own workers:
-
-```
-export PYTHONPATH=/nscratch/sagark/py_inst/lib/python2.7/site-packages:/nscratch/sagark/py_inst:$PYTHONPATH
-export PATH=/nscratch/sagark/bin/bin:/nscratch/sagark/bin:/nscratch/sagark/py_inst/bin:~/bin:$PATH
-```
-
-Next, make sure that you have the correct version of riscv-tools installed in `/nscratch/sagark/celery-workspace/tools-installs`. Inside this directory, installs of riscv-tools are named after the latest commit in the repo from which they were installed. If you need to install a new version, make a directory named after the hash, set `$RISCV` to that directory, and then install the tools. When you run a job, bar-crawl will check the name of this directory against the commit hash of riscv-tools inside your rocket-chip working directory and exit if there is a mismatch.
-
-TODO: users need ssh-forwarding or only for bringing up workers?
 
 Workflow:
 -----------------------
@@ -65,10 +55,26 @@ Additionally, bar-crawl will build and install riscv-tests into the shared outpu
 
 4) You can also monitor the compile tasks using the watch script. Run python watch.py and follow the prompts.
 
-How to use:
+Setup:
 -----------------------
 
-1) Get a copy of bar-crawl.
+**Note**: While everything described in this README should work, bar-crawl is still in "beta". Please talk to me (Sagar) if you're interested in using it.
+
+1) Add the following to your `.bashrc` to get `celery` on your `PATH`/`PYTHONPATH`. This will also give you access to `flower` and `redis-server`, but you probably won't need these unless you're running your own workers:
+
+```
+export PYTHONPATH=/nscratch/sagark/py_inst/lib/python2.7/site-packages:/nscratch/sagark/py_inst:$PYTHONPATH
+export PATH=/nscratch/sagark/bin/bin:/nscratch/sagark/bin:/nscratch/sagark/py_inst/bin:~/bin:$PATH
+```
+
+2) Next, make sure that you have the correct version of riscv-tools installed in `/nscratch/sagark/celery-workspace/tools-installs`. Inside this directory, installs of riscv-tools are named after the latest commit in the repo from which they were installed. If you need to install a new version, make a directory named after the hash, set `$RISCV` to that directory, and then install the tools. When you run a job, bar-crawl will check the name of this directory against the commit hash of riscv-tools inside your rocket-chip working directory and exit if there is a mismatch.
+
+TODO: users need ssh-forwarding or only for bringing up workers?
+
+How to Use bar-crawl:
+-----------------------
+
+1) Get a copy of bar-crawl from this repo. You'll want this to be accessible from the machine on which your working copy of rocket-chip is located.
 
 (The rest of this assumes the workers are already running. See below for instructions
 for starting a cluster)
