@@ -52,7 +52,7 @@ class UserJobConfig:
         # dashes
         #
         # this is especially useful if you have uncommitted changes
-        self.human_tag = "-sagar-test-emulator"
+        self.human_tag = "-sagar-test-vcs-sim-gl-syn"
         for x in self.human_tag:
             if x not in string.ascii_letters + string.digits + "-":
                 print "ERROR, character is not allowed in human_tag: " + x
@@ -70,8 +70,8 @@ class UserJobConfig:
                 'vsim', 
                 'vcs-sim-rtl', 
                 'dc-syn',
-#                'vcs-sim-gl-syn',
-#                'icc-par',
+                'vcs-sim-gl-syn',
+                'icc-par',
         ]
 
         self.enableEMAIL = True

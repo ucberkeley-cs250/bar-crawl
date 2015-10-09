@@ -100,5 +100,7 @@ compiles = ResultSet([])
 for x in designs:
     compiles.add(compile_and_copy.delay(x, hashes, jobdirname, userjobconfig))
 
-y = compiles.get()
+print("Your job has been launched. You can monitor it at a8:8080")
+
+#y = compiles.get()
 #print y[0].get()
