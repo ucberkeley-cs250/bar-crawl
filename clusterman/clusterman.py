@@ -17,7 +17,7 @@ med = ['boxboro', 'sandy', 'bridge', 'jktqos', 'jktgz', 'a20', 'a19']
 very_slow = ['emerald']
 no_ecad = ['beckton']
 
-env.hosts = fast
+env.hosts = fast + ['boxboro']
 backuphosts = env.hosts
 
 bar_crawl_dir = os.getcwd() + "/.."

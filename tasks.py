@@ -126,6 +126,17 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
         for y in testslist:
             rs.add(vcs_sim_gl_syn_test.delay(design_name, y, jobinfo, userjobconfig))
 
+    """ run dc-syn """
+    if 'icc-par' in userjobconfig.tests:
+        with lcd(rc_dir + '/vlsi'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
+            rl2.local_logged('make 2>&1')
+        # vlsi, icc
+        with lcd(rc_dir + '/vlsi/icc-par'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
+            # TODO: what does -jN do here?
+            rl2.local_logged('make 2>&1')
+            rl.local_logged('cp -r current-icc/reports ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/icc-par/')
+            rl.local_logged('cp -r current-icc/results ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/icc-par/')
+
 
     rl.clear_log() # clear the redis log list
     if userjobconfig.enableEMAIL:
@@ -203,8 +214,8 @@ samplevcs_sim_gl_syn = "cd . && ./simv-{} -ucli -do +run.tcl +dramsim +verbose +
 
 def vcs_sim_gl_syn(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
-    workdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vcs-sim-rtl/vcs-sim-rtl'
-    with lcd(workdir), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
+    workdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vcs-sim-gl-syn/vcs-sim-gl-syn'
+    with lcd(workdir), shell_env(**userjobconfig.shell_env_args), prefix('source ' + vlsi_bashrc), settings(warn_only=True):
         res = local(samplevcs_sim_gl_syn.format(design_name, test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
