@@ -158,7 +158,7 @@ def emulator(design_name, test_to_run, jobinfo, userjobconfig):
         return ["PASS", q.stdout.split()[1]]
 
 # 5 min timeout per test
-@app.task(bind=True, soft_time_limit=300)
+@app.task(bind=True, soft_time_limit=600)
 def emulatortest(self, design_name, testname, jobinfo, userjobconfig):
     try:
         rval = execute(emulator, design_name, testname, jobinfo, userjobconfig).values()
@@ -180,7 +180,7 @@ def vsim(design_name, test_to_run, jobinfo, userjobconfig):
         return ["PASS", q.stdout.split()[1]]
 
 # 5 min timeout per test
-@app.task(bind=True, soft_time_limit=300)
+@app.task(bind=True, soft_time_limit=600)
 def vsimtest(self, design_name, testname, jobinfo, userjobconfig):
     try:
         rval = execute(vsim, design_name, testname, jobinfo, userjobconfig).values()
@@ -202,7 +202,7 @@ def vcs_sim_rtl(design_name, test_to_run, jobinfo, userjobconfig):
         return ["PASS", q.stdout.split()[1]]
 
 # 5 min timeout per test
-@app.task(bind=True, soft_time_limit=300)
+@app.task(bind=True, soft_time_limit=600)
 def vcs_sim_rtl_test(self, design_name, testname, jobinfo, userjobconfig):
     try:
         rval = execute(vcs_sim_rtl, design_name, testname, jobinfo, userjobconfig).values()
@@ -224,8 +224,7 @@ def vcs_sim_gl_syn(design_name, test_to_run, jobinfo, userjobconfig):
         # return "PASS" and # of cycles
         return ["PASS", q.stdout.split()[1]]
 
-# 5 min timeout per test
-@app.task(bind=True, soft_time_limit=900)
+# no time-limit on gl-syn
 def vcs_sim_gl_syn_test(self, design_name, testname, jobinfo, userjobconfig):
     try:
         rval = execute(vcs_sim_gl_syn, design_name, testname, jobinfo, userjobconfig).values()
