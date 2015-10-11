@@ -144,13 +144,13 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
         email_user(userjobconfig, jobinfo, design_name)
     return rs
 
-sampleemulator = "./emulator-Top-{} +dramsim +max-cycles=100000000 +verbose +loadmem=../../../../esp-tests/isa/{}.hex none 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+sampleemulator = "./emulator-Top-{} +dramsim +max-cycles=100000000 +verbose +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex none 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
 
 def emulator(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
     workdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/emulator/emulator'
     with lcd(workdir), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
-        res = local(sampleemulator.format(design_name, test_to_run, test_to_run), shell='/bin/bash')
+        res = local(sampleemulator.format(design_name, userjobconfig.hashes['riscv-tools'], test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
         q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)

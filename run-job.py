@@ -42,6 +42,7 @@ dtstr = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
 # hashes to check against to make sure we're using consistent tools
 # and to name output directories
 hashes = get_hashes(userjobconfig.master_rocket_chip_dir)
+userjobconfig.hashes = hashes
 
 # check if the riscv-tools we're supposed to be using matches what's installed:
 if hashes['riscv-tools'] != userjobconfig.rvenv_installed_hash:
@@ -88,10 +89,11 @@ def do_jackhammer():
     generate_recursive_patches(userjobconfig.master_rocket_chip_dir, patchdir)
 
 def build_riscv_tests():
-    with lcd(userjobconfig.distribute_rocket_chip_loc), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
-        local('git clone ' + userjobconfig.tests_location)
-        local('cd esp-tests && git submodule update --init')
-        local('cd esp-tests/isa && make -j32')
+    with lcd('/nscratch/bar-crawl/tests-installs'), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
+        local('git clone ' + userjobconfig.tests_location + ' ' + hashes['riscv-tools'])
+        local('cd ' + hashes['riscv-tools'] + ' && git checkout ' + hashes['riscv-tools'])
+        local('cd ' + hashes['riscv-tools'] + ' && git submodule update --init')
+        local('cd ' + hashes['riscv-tools'] + '/isa && make -j32')
 
 do_jackhammer()
 build_riscv_tests()
@@ -102,3 +104,12 @@ for x in designs:
 
 print(bcolors.OKBLUE + "Your job has been launched. You can monitor it at a8:8080" + bcolors.ENDC)
 print(bcolors.OKGREEN + "Your job id is " + jobdirname + bcolors.ENDC)
+
+
+# TODO generate job run report
+# 1 whether or not new tests/tools were installed
+# 2 where to find outputs
+# 3 how to use watch script
+# 4 jobid
+# 5 write it to file so that the watch script can use it
+

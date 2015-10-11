@@ -12,7 +12,7 @@ class UserJobConfig:
         # your rocket-chip work directory on the master node
         # bar-crawl will look at commit hashes here to make sure it's testing the
         # right code with the right toolchain/tests
-        self.master_rocket_chip_dir = "/scratch/sagark/bar-crawl-test"
+        self.master_rocket_chip_dir = "/scratch/sagark/test-hwacha-moved"
 
         # risc-v tools installation. should be on nscratch
         #
@@ -77,13 +77,15 @@ class UserJobConfig:
 
         # set of "tests" to run
         # remove/comment out items that you don't wish to run
+        #
+        # TODO: rename this
         self.tests = [
                 'emulator', 
-                'vsim', 
-                'vcs-sim-rtl', 
-                'dc-syn',
-                'vcs-sim-gl-syn',
-                'icc-par',
+#                'vsim', 
+#                'vcs-sim-rtl', 
+#                'dc-syn',
+#                'vcs-sim-gl-syn',
+#                'icc-par',
         ]
 
         self.enableEMAIL = True
@@ -97,6 +99,7 @@ class UserJobConfig:
             self.email_addr = "sagark@eecs.berkeley.edu"
             self.cc_addr = "karandikarsagar@gmail.com"
 
+        self.hashes = {} # populated later
 
     def __str__(self):
         return self.__repr__()
