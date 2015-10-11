@@ -3,6 +3,7 @@ import redis
 from celery import Celery
 from celery.result import ResultSet
 from celery.exceptions import SoftTimeLimitExceeded
+from celery.signals import task_revoked
 from crawlutils import *
 from fabric.api import *
 from fabric.tasks import execute
@@ -224,12 +225,19 @@ def vcs_sim_gl_syn(design_name, test_to_run, jobinfo, userjobconfig):
         return ["PASS", q.stdout.split()[1]]
 
 # 5 min timeout per test
-@app.task(bind=True, soft_time_limit=300)
+@app.task(bind=True, soft_time_limit=900)
 def vcs_sim_gl_syn_test(self, design_name, testname, jobinfo, userjobconfig):
     try:
         rval = execute(vcs_sim_gl_syn, design_name, testname, jobinfo, userjobconfig).values()
         return rval
     except SoftTimeLimitExceeded:
         return "FAILED RAN OUT OF TIME"
+
+
+
+@task_revoked.connect
+def task_revoked_handler(request, terminated, signum, expired, **kwargs):
+    # kill child tasks on revoke
+    kill_child_processes(request.worker_pid)
 
 
