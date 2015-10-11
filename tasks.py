@@ -225,6 +225,7 @@ def vcs_sim_gl_syn(design_name, test_to_run, jobinfo, userjobconfig):
         return ["PASS", q.stdout.split()[1]]
 
 # no time-limit on gl-syn
+@app.task(bind=True)
 def vcs_sim_gl_syn_test(self, design_name, testname, jobinfo, userjobconfig):
     try:
         rval = execute(vcs_sim_gl_syn, design_name, testname, jobinfo, userjobconfig).values()

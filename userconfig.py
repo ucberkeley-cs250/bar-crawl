@@ -13,21 +13,21 @@ class UserJobConfig:
         # bar-crawl will look at commit hashes here to make sure it's testing the
         # right code with the right toolchain/tests
         self.master_rocket_chip_dir = "/scratch/sagark/bar-crawl-test"
+
         # risc-v tools installation. should be on nscratch
         #
         # it is expected that you name this directory after the commit ID 
-        # of the riscv-tools that you installed it from e.g:
+        # of riscv-tools that you installed it from e.g:
         #
-        # /nscratch/sagark/celery-workspace/tools-installs/0129c14c9837ef925e7b1d9513e32a5ffcaea75f
+        # /nscratch/bar-crawl/tools-installs/0129c14c9837ef925e7b1d9513e32a5ffcaea75f
         # 
         # When you launch a job, bar-crawl will check this directory name against
         # the commit hash  of riscv-tools submodule in your working directory 
-        # and complain if there is a mismatch
-        # TODO: configure based on changes
+        # and prevent you from proceeding if there is a mismatch
         #
         # TODO: can auto-detect this based on what it's supposed to be from 
         # looking at master_rocket_chip_dir
-        self.rvenv = "/nscratch/sagark/celery-workspace/tools-installs/830a1e493f6f2a58d16e2e8020a2e4b74b09c420"
+        self.rvenv = "/nscratch/bar-crawl/tools-installs/21eb7c03e53504b13fdc3c0c547e07a48c457419"
         self.env_RISCV = self.rvenv
         self.env_PATH = self.rvenv+"/bin:$PATH"
         self.env_LD_LIBRARY = self.rvenv+"/lib"
@@ -52,7 +52,7 @@ class UserJobConfig:
         # dashes
         #
         # this is especially useful if you have uncommitted changes
-        self.human_tag = "-sagar-test-with-icc2-large-timeout2"
+        self.human_tag = "-sagar-test-no-timeout-gl-syn"
         for x in self.human_tag:
             if x not in string.ascii_letters + string.digits + "-":
                 print "ERROR, character is not allowed in human_tag: " + x

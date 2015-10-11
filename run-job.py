@@ -18,7 +18,7 @@ userjobconfig = UserJobConfig()
 
 workers = app.control.inspect().ping()
 if workers == None:
-    print("There are no workers running. Please start workers.")
+    print(bcolors.FAIL + "There are no workers running. Please start workers." + bcolors.ENDC)
     exit(1)
 
 # check that we're using workers consistent with our version of bar-crawl
@@ -32,7 +32,7 @@ for worker in workers:
 if mismatch_found:
     msg = """bar-crawl cannot run with mismatched workers. This probably means that you 
 need to update your local version of bar-crawl."""
-    print(msg)
+    print(bcolors.FAIL + msg + bcolors.ENDC)
     exit(1)
 
 
@@ -45,7 +45,7 @@ hashes = get_hashes(userjobconfig.master_rocket_chip_dir)
 
 # check if the riscv-tools we're supposed to be using matches what's installed:
 if hashes['riscv-tools'] != userjobconfig.rvenv_installed_hash:
-    print("riscv-tools hash mismatch:")
+    print(bcolors.FAIL + "riscv-tools hash mismatch:" + bcolors.ENDC)
     print("Installed: " + userjobconfig.rvenv_installed_hash)
     print("Required:  " + hashes['riscv-tools'])
     exit(1)
@@ -100,7 +100,5 @@ compiles = ResultSet([])
 for x in designs:
     compiles.add(compile_and_copy.delay(x, hashes, jobdirname, userjobconfig))
 
-print("Your job has been launched. You can monitor it at a8:8080")
-
-#y = compiles.get()
-#print y[0].get()
+print(bcolors.OKBLUE + "Your job has been launched. You can monitor it at a8:8080" + bcolors.ENDC)
+print(bcolors.OKGREEN + "Your job id is " + jobdirname + bcolors.ENDC)
