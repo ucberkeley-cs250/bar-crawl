@@ -11,11 +11,6 @@ from copy import copy
 
 app = Celery('tasks', backend='rpc://', broker=redis_conf_string)
 
-sample = "./emulator-Top-DefaultCPPConfig +dramsim +max-cycles=100000000 +verbose +loadmem=../esp-tests/isa/{}.hex none 3>&1 1>&2 2>&3 | spike-dasm  > ../../{}.out && [ $PIPESTATUS -eq 0 ]"
-
-#app.conf.CELERY_ACKS_LATE=True
-#app.conf.CELERYD_PREFETCH_MULTIPLIER=10
-
 @app.task(bind=True)
 def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
     rs = ResultSet([])
@@ -150,7 +145,7 @@ def emulator(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
     workdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/emulator/emulator'
     with lcd(workdir), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
-        res = local(sampleemulator.format(design_name, userjobconfig.hashes['riscv-tools'], test_to_run, test_to_run), shell='/bin/bash')
+        res = local(sampleemulator.format(design_name, userjobconfig.hashes['riscv-tests'], test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
         q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
@@ -166,13 +161,13 @@ def emulatortest(self, design_name, testname, jobinfo, userjobconfig):
     except SoftTimeLimitExceeded:
         return "FAILED RAN OUT OF TIME"
 
-samplevcs = "cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=../../../../esp-tests/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+samplevcs = "cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
 
 def vsim(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
     workdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vsim/vsim'
     with lcd(workdir), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
-        res = local(samplevcs.format(design_name, test_to_run, test_to_run), shell='/bin/bash')
+        res = local(samplevcs.format(design_name, userjobconfig.hashes['riscv-tests'], test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
         q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
@@ -188,13 +183,13 @@ def vsimtest(self, design_name, testname, jobinfo, userjobconfig):
     except SoftTimeLimitExceeded:
         return "FAILED RAN OUT OF TIME"
 
-samplevcs_sim_rtl = 'cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=../../../../esp-tests/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]'
+samplevcs_sim_rtl = 'cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]'
 
 def vcs_sim_rtl(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
     workdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vcs-sim-rtl/vcs-sim-rtl'
     with lcd(workdir), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
-        res = local(samplevcs_sim_rtl.format(design_name, test_to_run, test_to_run), shell='/bin/bash')
+        res = local(samplevcs_sim_rtl.format(design_name, userjobconfig.hashes['riscv-tests'], test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
         q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
@@ -211,13 +206,13 @@ def vcs_sim_rtl_test(self, design_name, testname, jobinfo, userjobconfig):
         return "FAILED RAN OUT OF TIME"
 
 
-samplevcs_sim_gl_syn = "cd . && ./simv-{} -ucli -do +run.tcl +dramsim +verbose +max-cycles=100000000 +loadmem=../../../../esp-tests/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+samplevcs_sim_gl_syn = "cd . && ./simv-{} -ucli -do +run.tcl +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
 
 def vcs_sim_gl_syn(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
     workdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vcs-sim-gl-syn/vcs-sim-gl-syn'
     with lcd(workdir), shell_env(**userjobconfig.shell_env_args), prefix('source ' + vlsi_bashrc), settings(warn_only=True):
-        res = local(samplevcs_sim_gl_syn.format(design_name, test_to_run, test_to_run), shell='/bin/bash')
+        res = local(samplevcs_sim_gl_syn.format(design_name, userjobconfig.hashes['riscv-tests'], test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
         q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)

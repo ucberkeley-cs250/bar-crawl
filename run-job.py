@@ -90,10 +90,10 @@ def do_jackhammer():
 
 def build_riscv_tests():
     with lcd('/nscratch/bar-crawl/tests-installs'), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
-        local('git clone ' + userjobconfig.tests_location + ' ' + hashes['riscv-tools'])
-        local('cd ' + hashes['riscv-tools'] + ' && git checkout ' + hashes['riscv-tools'])
-        local('cd ' + hashes['riscv-tools'] + ' && git submodule update --init')
-        local('cd ' + hashes['riscv-tools'] + '/isa && make -j32')
+        local('git clone ' + userjobconfig.tests_location + ' ' + hashes['riscv-tests'])
+        local('cd ' + hashes['riscv-tests'] + ' && git checkout ' + hashes['riscv-tests'])
+        local('cd ' + hashes['riscv-tests'] + ' && git submodule update --init')
+        local('cd ' + hashes['riscv-tests'] + '/isa && make -j32')
 
 do_jackhammer()
 build_riscv_tests()
