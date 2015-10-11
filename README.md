@@ -90,7 +90,7 @@ for starting a cluster)
 * `tests_location` - github repo for riscv-tests
 * `human_tag` - user-specifiable string that will be added to the end of the job name, to let you easily identify the job
 * `distribute_rocket_chip_loc` - the directory where your job directories will be created, usually defined per-project
-* `tests` - comment out parts of the flow that you don't want to run. Currently supports emulator, vsim, vcs-sim-rtl, dc-syn 
+* `tests` - comment out parts of the flow that you don't want to run. Currently supports emulator, vsim, vcs-sim-rtl, dc-syn, vcs-sim-gl-syn, icc-par
 * `enableEMAIL` - Set this to true if you want job completion emails. 
 * `mailgun_api` - If you enable emails, the API key for mailgun. This currently uses a mailgun API key available in a file on nscratch, but you can use your own.
 * `email_addr` - An address to send a completion email
