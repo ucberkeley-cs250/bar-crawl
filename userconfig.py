@@ -21,6 +21,10 @@ class UserJobConfig:
         #
         # /nscratch/bar-crawl/tools-installs/0129c14c9837ef925e7b1d9513e32a5ffcaea75f
         # 
+        # To "atomically" install new tools when there is the potential for 
+        # multiple people to be running jobs, you should first install the tools
+        # into a staging directory and then move them into the right directory.
+        #
         # When you launch a job, bar-crawl will check this directory name against
         # the commit hash  of riscv-tools submodule in your working directory 
         # and prevent you from proceeding if there is a mismatch
@@ -28,42 +32,50 @@ class UserJobConfig:
         # TODO: can auto-detect this based on what it's supposed to be from 
         # looking at master_rocket_chip_dir
         self.rvenv = "/nscratch/bar-crawl/tools-installs/21eb7c03e53504b13fdc3c0c547e07a48c457419"
+
+        """ DO NOT MODIFY """
         self.env_RISCV = self.rvenv
         self.env_PATH = self.rvenv+"/bin:$PATH"
         self.env_LD_LIBRARY = self.rvenv+"/lib"
         self.rvenv_installed_hash = self.rvenv.split("/")[-1]
+        """ END DO NOT MODIFY """
 
-        self.MODEL='Top'
+        self.MODEL='Top' # this currently should not be changed. see README
         self.CONF = 'EOS24Config' # this is the overall config name (as opposed to EOS24Config0, EOS24Config1, etc)
 
+        """ DO NOT MODIFY """
         self.shell_env_args = {
                 'RISCV': self.env_RISCV,
                 'PATH': self.env_PATH,
                 'LD_LIBRARY_PATH': self.env_LD_LIBRARY,
                 'CONFIG': self.CONF
         }
+        """ END DO NOT MODIFY """
 
+        # the next two locations are the github repository url of your 
+        # copy of rocket-chip and the tests you intend to run
         self.rocket_chip_location = 'git@github.com:ucb-bar/rocket-chip'
         self.tests_location = 'git@github.com:ucb-bar/esp-tests.git'
 
-        # if you want, you can set a tag here to make your output directory
+        # If you want, you can set a tag here to make your output directory
         # easier to identify. this tag will be tacked onto the end of the job
         # output directory name. It can only contain letters, numbers, and
-        # dashes
-        #
-        # this is especially useful if you have uncommitted changes
+        # dashes. This is especially useful if you have uncommitted changes.
         self.human_tag = "-sagar-test-no-timeout-gl-syn"
+
+        """ DO NOT MODIFY """
         for x in self.human_tag:
             if x not in string.ascii_letters + string.digits + "-":
                 print "ERROR, character is not allowed in human_tag: " + x
                 exit(0)
+        """ END DO NOT MODIFY """
 
-
-        # TODO: this should probably be set on a per-project basis, so that users
-        # trying out a design will all dump things into one shared dir
+        # This should be set on a per-project basis, so that users
+        # trying out a design for a particular project will all make job
+        # directories in one directory in one shared dir
         self.distribute_rocket_chip_loc = "/nscratch/bar-crawl/hwacha"
 
-        # set of tests to run
+        # set of "tests" to run
         # remove/comment out items that you don't wish to run
         self.tests = [
                 'emulator', 
@@ -93,6 +105,4 @@ class UserJobConfig:
         asdict = self.__dict__
         keys = filter(lambda x: x != 'runtests', asdict.keys())
         p = { k: asdict[k] for k in keys }
-        #st = """Using Master at: {}
-        #Using $RISCV at: {}""".format(self.master_rocket_chip_dir, self.rvenv)
         return str(p)
