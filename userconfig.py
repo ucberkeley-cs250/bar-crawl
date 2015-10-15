@@ -12,7 +12,7 @@ class UserJobConfig:
         # your rocket-chip work directory on the master node
         # bar-crawl will look at commit hashes here to make sure it's testing the
         # right code with the right toolchain/tests
-        self.master_rocket_chip_dir = "/scratch/sagark/test-hwacha-moved"
+        self.master_rocket_chip_dir = "/scratch/sagark/launch-vlsi-new-shaped/rocket-chip"
 
         # risc-v tools installation. should be on nscratch
         #
@@ -61,7 +61,7 @@ class UserJobConfig:
         # easier to identify. this tag will be tacked onto the end of the job
         # output directory name. It can only contain letters, numbers, and
         # dashes. This is especially useful if you have uncommitted changes.
-        self.human_tag = "-sagar-test-no-timeout-gl-syn"
+        self.human_tag = "-sagar-new-shape-script"
 
         """ DO NOT MODIFY """
         for x in self.human_tag:
@@ -81,11 +81,11 @@ class UserJobConfig:
         # TODO: rename this
         self.tests = [
                 'emulator', 
-#                'vsim', 
-#                'vcs-sim-rtl', 
-#                'dc-syn',
-#                'vcs-sim-gl-syn',
-#                'icc-par',
+                'vsim', 
+                'vcs-sim-rtl', 
+                'dc-syn',
+                'vcs-sim-gl-syn',
+                'icc-par',
         ]
 
         self.enableEMAIL = True
@@ -106,6 +106,6 @@ class UserJobConfig:
 
     def __repr__(self):
         asdict = self.__dict__
-        keys = filter(lambda x: x != 'runtests', asdict.keys())
+        keys = filter(lambda x: x != 'mailgun_api', asdict.keys())
         p = { k: asdict[k] for k in keys }
         return str(p)
