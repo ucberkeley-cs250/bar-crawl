@@ -13,13 +13,20 @@ app = Celery('tasks', backend='rpc://', broker=redis_conf_string)
 
 @app.task(bind=True)
 def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
+
     rs = ResultSet([])
 
     rl = RedisLogger(design_name)
     rl2 = RedisLoggerStream(design_name)
 
+    isfbox = re.match("^f[0-9][0-9]+", self.request.hostname)
+    isfbox = isfbox is not None
+
+    base_dir = "/scratch/"
+    if isfbox:
+        base_dir = "/data/"
     # create scratch space on this node for compiling the design, then clone
-    design_dir = '/scratch/' + userjobconfig.username + '/celery-temp/' + design_name
+    design_dir = base_dir + userjobconfig.username + '/celery-temp/' + design_name
     # remove old results for that design if they exist
     rl.local_logged('rm -rf ' + design_dir)
     rl.local_logged('mkdir -p ' + design_dir)
