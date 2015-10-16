@@ -12,12 +12,15 @@ from crawlutils import get_hash
 
 # list of hosts to run remote commands on
 fast = ['a7', 'a8', 'a5', 'a6']
+noa7fast = ['a8', 'a5', 'a6']
 med = ['boxboro', 'sandy', 'bridge', 'jktqos', 'jktgz', 'a20', 'a19']
 
 very_slow = ['emerald']
 no_ecad = ['beckton']
 
-env.hosts = fast + ['boxboro']
+#samplefbox = ['f1', 'f2']
+
+env.hosts = noa7fast + ['boxboro']
 backuphosts = env.hosts
 
 bar_crawl_dir = os.getcwd() + "/.."

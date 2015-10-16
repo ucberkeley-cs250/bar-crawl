@@ -94,23 +94,24 @@ class RedisLoggerStream:
     This is experimental since it uses internal functions from fabric. Use
     only for non-destructive stuff for now just to be safe.
     """
-    def __init__(self, design_name):
+    def __init__(self, design_name, jobname):
         self.red = redis.StrictRedis(**redis_conf)
         self.design_name = design_name
+        self.job_name = jobname
 
     def local_logged(self, cmd):
         with_env = operations._prefix_env_vars(cmd, local=True)
         wrapped_command = operations._prefix_commands(with_env, 'local')
-        self.red.lpush(self.design_name, '> ' + wrapped_command + '\n')
-        self.red.publish(self.design_name, '> ' + wrapped_command + '\n')
+        self.red.lpush(self.job_name + "-" + self.design_name, '> ' + wrapped_command + '\n')
+        self.red.publish(self.job_name + "-" + self.design_name, '> ' + wrapped_command + '\n')
         s = subprocess.Popen(wrapped_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                 executable=None, close_fds=True)
         for c in iter(lambda: s.stdout.read(1), ''):
-            self.red.publish(self.design_name, c)
-            self.red.lpush(self.design_name, c)
+            self.red.publish(self.job_name + "-" + self.design_name, c)
+            self.red.lpush(self.job_name + "-" + self.design_name, c)
 
     def clear_log(self):
-        self.red.delete(self.design_name)
+        self.red.delete(self.job_name + "-" + self.design_name)
 
 subdiffendmarker = "END-------------------"
 

@@ -5,6 +5,9 @@ from userconfig import UserJobConfig
 
 userjobconfig = UserJobConfig()
 
+jobid = "2015-10-16-14-02-42-386a0c72-sagar-new-shape-script"
+jobid2 = "2015-10-16-14-10-26-386a0c72-sagar-new-shape-script-2"
+
 msg2 = """The following designs were detected.
 
 If the list below is not what you expect, please make sure the jackhammer run 
@@ -35,7 +38,7 @@ for x in range(len(designs)):
 d = int(input(''))
 
 
-design_name = designs[d]
+design_name = jobid2 + "-" + designs[d]
 
 red = redis.StrictRedis(**redis_conf)
 ps = red.pubsub()

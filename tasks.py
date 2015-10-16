@@ -1,4 +1,5 @@
 import redis
+import re
 
 from celery import Celery
 from celery.result import ResultSet
@@ -17,7 +18,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
     rs = ResultSet([])
 
     rl = RedisLogger(design_name)
-    rl2 = RedisLoggerStream(design_name)
+    rl2 = RedisLoggerStream(design_name, jobinfo)
 
     isfbox = re.match("^f[0-9][0-9]+", self.request.hostname)
     isfbox = isfbox is not None
@@ -26,9 +27,12 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
     if isfbox:
         base_dir = "/data/"
     # create scratch space on this node for compiling the design, then clone
-    design_dir = base_dir + userjobconfig.username + '/celery-temp/' + design_name
+    # for now, do not delete the scratch space, just keep making new ones
+    # 1) preserve work dir for debugging
+    # 2) let a user run multiple jobs at once
+    design_dir = base_dir + userjobconfig.username + '/celery-temp/' + jobinfo + "/" + design_name
     # remove old results for that design if they exist
-    rl.local_logged('rm -rf ' + design_dir)
+    #rl.local_logged('rm -rf ' + design_dir)
     rl.local_logged('mkdir -p ' + design_dir)
     with lcd(design_dir):
         rl.local_logged('git clone ' + userjobconfig.rocket_chip_location)
