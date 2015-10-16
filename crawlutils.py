@@ -64,7 +64,7 @@ vlsi_bashrc = '/ecad/tools/vlsi.bashrc'
 # this is the redis server that is used by celery/flower and the watch mechanism
 # it's a good idea to put this on a machine with lots of RAM
 redis_conf = {
-        'host': 'a8.millennium.berkeley.edu',
+        'host': 'fbox.millennium.berkeley.edu',
         'port': 6379,
         'db': 0
 }

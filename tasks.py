@@ -20,12 +20,12 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
     rl = RedisLogger(design_name)
     rl2 = RedisLoggerStream(design_name, jobinfo)
 
-    isfbox = re.match("^f[0-9][0-9]+", self.request.hostname)
-    isfbox = isfbox is not None
+    #isfbox = re.match("^f[0-9][0-9]+", self.request.hostname)
+    #isfbox = isfbox is not None
 
     base_dir = "/scratch/"
-    if isfbox:
-        base_dir = "/data/"
+    #if isfbox:
+    #    base_dir = "/data/"
     # create scratch space on this node for compiling the design, then clone
     # for now, do not delete the scratch space, just keep making new ones
     # 1) preserve work dir for debugging

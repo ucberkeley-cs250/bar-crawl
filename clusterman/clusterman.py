@@ -15,12 +15,12 @@ fast = ['a7', 'a8', 'a5', 'a6']
 noa7fast = ['a8', 'a5', 'a6']
 med = ['boxboro', 'sandy', 'bridge', 'jktqos', 'jktgz', 'a20', 'a19']
 
+fbox = ['f2', 'f3']
+
 very_slow = ['emerald']
 no_ecad = ['beckton']
 
-#samplefbox = ['f1', 'f2']
-
-env.hosts = noa7fast + ['boxboro']
+env.hosts = fbox #+ ['boxboro']
 backuphosts = env.hosts
 
 bar_crawl_dir = os.getcwd() + "/.."
