@@ -71,21 +71,24 @@ redis_conf = {
 redis_conf_string = 'redis://' + redis_conf['host'] + ":" + str(redis_conf['port'])
 
 class RedisLogger:
-    def __init__(self, design_name):
+    def __init__(self, design_name, jobname):
         self.red = redis.StrictRedis(**redis_conf)
         self.design_name = design_name
+        self.job_name = jobname
 
     def local_logged(self, cmd):
-        self.red.lpush(self.design_name, '> ' + cmd + '\n')
-        self.red.publish(self.design_name, '> ' + cmd + '\n')
+        n = self.job_name + "-" + self.design_name
+        self.red.lpush(n, '> ' + cmd + '\n')
+        self.red.publish(n, '> ' + cmd + '\n')
         r = local(cmd, capture=True)
-        self.red.lpush(self.design_name, "stdout:\n" + r.stdout + '\n')
-        self.red.publish(self.design_name, "stdout:\n" + r.stdout + '\n')
-        self.red.lpush(self.design_name, "stderr:\n" + r.stderr + '\n')
-        self.red.publish(self.design_name, "stderr:\n" + r.stderr + '\n')
+        self.red.lpush(n, "stdout:\n" + r.stdout + '\n')
+        self.red.publish(n, "stdout:\n" + r.stdout + '\n')
+        self.red.lpush(n, "stderr:\n" + r.stderr + '\n')
+        self.red.publish(n, "stderr:\n" + r.stderr + '\n')
 
     def clear_log(self):
-        self.red.delete(self.design_name)
+        n = self.job_name + "-" + self.design_name
+        self.red.delete(n)
 
 class RedisLoggerStream:
     """ Replace fabric local to allow for streaming output back to the master

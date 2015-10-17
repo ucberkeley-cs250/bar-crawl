@@ -120,6 +120,8 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
             rl.local_logged('cp -r current-dc/reports ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
             rl.local_logged('cp -r current-dc/results ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
 
+    rl.clear_log() # if we made it this far, clear the redis log list
+
     if 'vcs-sim-gl-syn' in userjobconfig.tests:
         with lcd(rc_dir + '/vlsi/vcs-sim-gl-syn'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
             # todo actually use the name
@@ -133,7 +135,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
         for y in testslist:
             rs.add(vcs_sim_gl_syn_test.delay(design_name, y, jobinfo, userjobconfig))
 
-    """ run dc-syn """
+    """ run icc-par """
     if 'icc-par' in userjobconfig.tests:
         with lcd(rc_dir + '/vlsi'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
             rl2.local_logged('make 2>&1')
