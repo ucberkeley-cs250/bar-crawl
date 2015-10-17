@@ -15,7 +15,7 @@ fast = ['a7', 'a8', 'a5', 'a6']
 noa7fast = ['a8', 'a5', 'a6']
 med = ['boxboro', 'sandy', 'bridge', 'jktqos', 'jktgz', 'a20', 'a19']
 
-fbox = ['f2', 'f3']
+fbox = ['f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12']
 
 very_slow = ['emerald']
 no_ecad = ['beckton']

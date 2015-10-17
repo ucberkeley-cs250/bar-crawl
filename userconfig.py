@@ -61,7 +61,7 @@ class UserJobConfig:
         # easier to identify. this tag will be tacked onto the end of the job
         # output directory name. It can only contain letters, numbers, and
         # dashes. This is especially useful if you have uncommitted changes.
-        self.human_tag = "-sagar-new-shape-script-2"
+        self.human_tag = "-sagar-fbox-test"
 
         """ DO NOT MODIFY """
         for x in self.human_tag:
