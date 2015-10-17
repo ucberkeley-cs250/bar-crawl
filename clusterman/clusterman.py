@@ -24,7 +24,7 @@ env.hosts = fbox #+ ['boxboro']
 backuphosts = env.hosts
 
 bar_crawl_dir = os.getcwd() + "/.."
-redis_install = '/nscratch/sagark/celery-distr/redis/redis.conf'
+redis_install = os.getcwd() + "/redis.conf"
 
 # prefix worker name with hash of current version of bar-crawl to keep things
 # consistent for users
