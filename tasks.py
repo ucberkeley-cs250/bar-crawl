@@ -112,11 +112,11 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
     """ run dc-syn """
     if 'dc-syn' in userjobconfig.tests:
         with lcd(rc_dir + '/vlsi'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
-            rl2.local_logged('make 2>&1')
+            rl2.local_logged('make dc 2>&1')
         # vlsi, dc
         with lcd(rc_dir + '/vlsi/dc-syn'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
             # TODO: what does -jN do here?
-            rl2.local_logged('make 2>&1')
+            #rl2.local_logged('make 2>&1')
             rl.local_logged('cp -r current-dc/reports ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
             rl.local_logged('cp -r current-dc/results ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
 
@@ -138,11 +138,11 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
     """ run icc-par """
     if 'icc-par' in userjobconfig.tests:
         with lcd(rc_dir + '/vlsi'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
-            rl2.local_logged('make 2>&1')
+            rl2.local_logged('make icc 2>&1')
         # vlsi, icc
         with lcd(rc_dir + '/vlsi/icc-par'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
             # TODO: what does -jN do here?
-            rl2.local_logged('make 2>&1')
+            #rl2.local_logged('make 2>&1')
             rl.local_logged('cp -r current-icc/reports ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/icc-par/')
             rl.local_logged('cp -r current-icc/results ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/icc-par/')
 

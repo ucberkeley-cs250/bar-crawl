@@ -56,7 +56,7 @@ class UserJobConfig:
 
         # the next two locations are the github repository url of your 
         # copy of rocket-chip and the tests you intend to run
-        self.rocket_chip_location = 'git@github.com:sagark/rocket-chip'
+        self.rocket_chip_location = 'git@github.com:ucb-bar/rocket-chip'
         self.tests_location = 'git@github.com:ucb-bar/esp-tests.git'
 
         # If you want, you can set a tag here to make your output directory
