@@ -17,8 +17,8 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
 
     rs = ResultSet([])
 
-    rl = RedisLogger(design_name)
-    rl2 = RedisLoggerStream(design_name, jobinfo)
+    rl = RedisLogger(design_name, jobinfo, userjobconfig.logging_on)
+    rl2 = RedisLoggerStream(design_name, jobinfo, userjobconfig.logging_on)
 
     #isfbox = re.match("^f[0-9][0-9]+", self.request.hostname)
     #isfbox = isfbox is not None
@@ -35,7 +35,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
     #rl.local_logged('rm -rf ' + design_dir)
     rl.local_logged('mkdir -p ' + design_dir)
     with lcd(design_dir):
-        rl.local_logged('git clone ' + userjobconfig.rocket_chip_location)
+        rl.local_logged('git clone ' + userjobconfig.rocket_chip_location + " rocket-chip")
     rc_dir = design_dir + '/rocket-chip'
     with lcd(rc_dir):
         # checkout the correct hash
