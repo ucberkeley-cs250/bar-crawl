@@ -64,9 +64,16 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
     # NOTE: This is currently required to get the dramsim2_ini directory
     # and get list of tests to run
     # TODO: do we need to get list of tests to run per environment?
-    with lcd(rc_dir + '/emulator'), shell_env(**shell_env_args_conf):
-        rl2.local_logged('make ' + cpp_emu_name + ' 2>&1')
-        rl.local_logged('cp -Lr ../emulator ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/emulator/')
+    if 'emulator' in userjobconfig.tests:
+        with lcd(rc_dir + '/emulator'), shell_env(**shell_env_args_conf):
+            rl2.local_logged('make ' + cpp_emu_name + ' 2>&1')
+            rl.local_logged('cp -Lr ../emulator ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/emulator/')
+    else:
+        with lcd(rc_dir + '/emulator'), shell_env(**shell_env_args_conf), settings(warn_only=True):
+            # even if emulator is broken, need dramsim
+            rl2.local_logged('make ' + cpp_emu_name + ' 2>&1')
+            rl.local_logged('cp -Lr ../emulator ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/emulator/')
+
 
     testslist = read_tests(rc_dir + '/emulator/generated-src/', design_name)
 
