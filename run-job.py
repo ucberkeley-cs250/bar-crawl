@@ -82,6 +82,8 @@ def do_jackhammer():
     for x in designs:
         for y in userjobconfig.tests:
             local('mkdir -p ' + fulljobdir + '/' + x + '/' + y)
+        # always make the emulator directory
+        local('mkdir -p ' + fulljobdir + '/' + x + '/emulator')
 
     # directory to store patches if there are local changes
     patchdir = fulljobdir + '/patches'
