@@ -91,6 +91,11 @@ def do_jackhammer():
     generate_recursive_patches(userjobconfig.master_rocket_chip_dir, patchdir)
 
 def build_riscv_tests():
+    # sanity check that the riscv-tests hash is not the same as the riscv-tools hash
+    # (this probably means that you forgot to do git submodule update --init inside riscv-tools)
+    if hashes['riscv-tests'] == hashes['riscv-tools']:
+        print(bcolors.FAIL + "riscv-tests hash matches riscv-tools hash. Did you forget to init the\nriscv-tests submodule?" + bcolors.ENDC)
+        exit(1)
     with lcd('/nscratch/bar-crawl/tests-installs'), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
         local('git clone ' + userjobconfig.tests_location + ' ' + hashes['riscv-tests'])
         local('cd ' + hashes['riscv-tests'] + ' && git checkout ' + hashes['riscv-tests'])
