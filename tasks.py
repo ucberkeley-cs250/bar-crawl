@@ -160,7 +160,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
         email_user(userjobconfig, jobinfo, design_name)
     return rs
 
-sampleemulator = "./emulator-Top-{} +dramsim +max-cycles=100000000 +verbose +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex none 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+sampleemulator = "./emulator-Top-{} +dramsim +max-cycles=100000000 +verbose +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex none 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
 
 def emulator(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
@@ -183,7 +183,7 @@ def emulatortest(self, design_name, testname, jobinfo, userjobconfig):
         kill_child_processes(os.getpid())
         return "FAILED RAN OUT OF TIME"
 
-samplevcs = "cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+samplevcs = "cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
 
 def vsim(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
@@ -194,7 +194,7 @@ def vsim(design_name, test_to_run, jobinfo, userjobconfig):
             return "FAIL"
         q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
         # return "PASS" and # of cycles
-        return ["PASS", q.stdout.split()[2]]
+        return ["PASS", q.stdout.split()[1]]
 
 # 5 min timeout per test
 @app.task(bind=True, soft_time_limit=600)
@@ -206,7 +206,7 @@ def vsimtest(self, design_name, testname, jobinfo, userjobconfig):
         kill_child_processes(os.getpid())
         return "FAILED RAN OUT OF TIME"
 
-samplevcs_sim_rtl = 'cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]'
+samplevcs_sim_rtl = 'cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]'
 
 def vcs_sim_rtl(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
@@ -217,7 +217,7 @@ def vcs_sim_rtl(design_name, test_to_run, jobinfo, userjobconfig):
             return "FAIL"
         q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
         # return "PASS" and # of cycles
-        return ["PASS", q.stdout.split()[2]]
+        return ["PASS", q.stdout.split()[1]]
 
 # 5 min timeout per test
 @app.task(bind=True, soft_time_limit=600)
@@ -230,7 +230,7 @@ def vcs_sim_rtl_test(self, design_name, testname, jobinfo, userjobconfig):
         return "FAILED RAN OUT OF TIME"
 
 
-samplevcs_sim_gl_syn = "cd . && ./simv-{} -ucli -do +run.tcl +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+samplevcs_sim_gl_syn = "cd . && ./simv-{} -ucli -do +run.tcl +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
 
 def vcs_sim_gl_syn(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
@@ -241,7 +241,7 @@ def vcs_sim_gl_syn(design_name, test_to_run, jobinfo, userjobconfig):
             return "FAIL"
         q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
         # return "PASS" and # of cycles
-        return ["PASS", q.stdout.split()[2]]
+        return ["PASS", q.stdout.split()[1]]
 
 # no time-limit on gl-syn
 @app.task(bind=True)
