@@ -179,6 +179,7 @@ def emulatortest(self, design_name, testname, jobinfo, userjobconfig):
         rval = execute(emulator, design_name, testname, jobinfo, userjobconfig).values()
         return rval
     except SoftTimeLimitExceeded:
+        kill_child_processes(self.request.worker_pid)
         return "FAILED RAN OUT OF TIME"
 
 samplevcs = "cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]"
@@ -201,6 +202,7 @@ def vsimtest(self, design_name, testname, jobinfo, userjobconfig):
         rval = execute(vsim, design_name, testname, jobinfo, userjobconfig).values()
         return rval
     except SoftTimeLimitExceeded:
+        kill_child_processes(self.request.worker_pid)
         return "FAILED RAN OUT OF TIME"
 
 samplevcs_sim_rtl = 'cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm  > ../{}.out && [ $PIPESTATUS -eq 0 ]'
@@ -223,6 +225,7 @@ def vcs_sim_rtl_test(self, design_name, testname, jobinfo, userjobconfig):
         rval = execute(vcs_sim_rtl, design_name, testname, jobinfo, userjobconfig).values()
         return rval
     except SoftTimeLimitExceeded:
+        kill_child_processes(self.request.worker_pid)
         return "FAILED RAN OUT OF TIME"
 
 
@@ -246,6 +249,7 @@ def vcs_sim_gl_syn_test(self, design_name, testname, jobinfo, userjobconfig):
         rval = execute(vcs_sim_gl_syn, design_name, testname, jobinfo, userjobconfig).values()
         return rval
     except SoftTimeLimitExceeded:
+        kill_child_processes(self.request.worker_pid)
         return "FAILED RAN OUT OF TIME"
 
 

@@ -1,6 +1,8 @@
 import os
 import string
 
+# todo: read this stuff from a config file specified at runtime
+
 """ USER CONFIG. Need to wrap this up and send to subtasks """
 class UserJobConfig:
 
@@ -15,7 +17,7 @@ class UserJobConfig:
         # your rocket-chip work directory on the master node
         # bar-crawl will look at commit hashes here to make sure it's testing the
         # right code with the right toolchain/tests
-        self.master_rocket_chip_dir = "/scratch/sagark/post-merge-fix/rocket-chip"
+        self.master_rocket_chip_dir = "/scratch/sagark/post-merge-fix/rc2"
 
         # risc-v tools installation. should be on nscratch
         #
@@ -34,7 +36,8 @@ class UserJobConfig:
         #
         # TODO: can auto-detect this based on what it's supposed to be from 
         # looking at master_rocket_chip_dir
-        self.rvenv = "/nscratch/bar-crawl/tools-installs/b0d6ab5cdc9518e6da9b57b808606d8e7727e866"
+        self.rvenv = "/nscratch/bar-crawl/tools-installs/0b9d801b453ac1944a71f51e26f69be120b16141"
+
         """ DO NOT MODIFY """
         self.env_RISCV = self.rvenv
         self.env_PATH = self.rvenv+"/bin:$PATH"
@@ -63,7 +66,7 @@ class UserJobConfig:
         # easier to identify. this tag will be tacked onto the end of the job
         # output directory name. It can only contain letters, numbers, and
         # dashes. This is especially useful if you have uncommitted changes.
-        self.human_tag = "-sagar-floorplan-4-post-mergefix"
+        self.human_tag = "-sagar-floorplan-4-newRTL-uncert-0-75-focal-opt-v2"
 
         """ DO NOT MODIFY """
         for x in self.human_tag:
@@ -82,7 +85,7 @@ class UserJobConfig:
         #
         # TODO: rename this
         self.tests = [
-#                'emulator', 
+                'emulator', 
                 'vsim', 
                 'vcs-sim-rtl', 
                 'dc-syn',
