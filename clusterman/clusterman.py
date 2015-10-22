@@ -49,7 +49,7 @@ def celery_worker():
             # we should use -Ofair
             # see http://docs.celeryproject.org/en/latest/userguide/optimizing.html#prefork-pool-prefetch-settings
             # some tests may run for a long time
-            run('celery multi start ' + h + '-1 -E --pidfile=' + pidfilename +  ' --logfile=' + logfilename + ' -A tasks --purge -l INFO -Ofair -P processes -c 12')
+            run('celery multi start ' + h + '-1 -E --pidfile=' + pidfilename +  ' --logfile=' + logfilename + ' -A tasks --purge -l INFO -Ofair -P processes -c 6')
 
 
 def celery_flower():

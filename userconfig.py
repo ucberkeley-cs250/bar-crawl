@@ -66,7 +66,7 @@ class UserJobConfig:
         # easier to identify. this tag will be tacked onto the end of the job
         # output directory name. It can only contain letters, numbers, and
         # dashes. This is especially useful if you have uncommitted changes.
-        self.human_tag = "-sagar-floorplan-4-newRTL-uncert-0-75-focal-opt-v2"
+        self.human_tag = "-sagar-floorplan-4-newRTL-uncert-0-075-focal-opt-v4"
 
         """ DO NOT MODIFY """
         for x in self.human_tag:
