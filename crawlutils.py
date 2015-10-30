@@ -169,7 +169,7 @@ def apply_recursive_patches(patch_dir, apply_to_dir):
         print relative_path
         actualdiff = d[1:]
         f = open(tempfile, 'w')
-        f.write("\n".join(actualdiff) + "\n")
+        f.write("\n".join(actualdiff) + "\n\n")
         f.close()
         print "----"
 

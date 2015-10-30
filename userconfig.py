@@ -17,8 +17,7 @@ class UserJobConfig:
         # your rocket-chip work directory on the master node
         # bar-crawl will look at commit hashes here to make sure it's testing the
         # right code with the right toolchain/tests
-        self.master_rocket_chip_dir = "/scratch/sagark/post-merge-fix/rc2"
-
+        self.master_rocket_chip_dir = "/scratch/sagark/new-fixes-oct30"
         # risc-v tools installation. should be on nscratch
         #
         # it is expected that you name this directory after the commit ID 
@@ -36,7 +35,7 @@ class UserJobConfig:
         #
         # TODO: can auto-detect this based on what it's supposed to be from 
         # looking at master_rocket_chip_dir
-        self.rvenv = "/nscratch/bar-crawl/tools-installs/0b9d801b453ac1944a71f51e26f69be120b16141"
+        self.rvenv = "/nscratch/bar-crawl/tools-installs/83ef8a6c609814fb35e166f063bd75ca91277ea9"
 
         """ DO NOT MODIFY """
         self.env_RISCV = self.rvenv
@@ -66,7 +65,7 @@ class UserJobConfig:
         # easier to identify. this tag will be tacked onto the end of the job
         # output directory name. It can only contain letters, numbers, and
         # dashes. This is especially useful if you have uncommitted changes.
-        self.human_tag = "-sagar-floorplan-4-newRTL-uncert-0-075-focal-opt-v4"
+        self.human_tag = "-sagar-oct30-run-uncert-08"
 
         """ DO NOT MODIFY """
         for x in self.human_tag:
