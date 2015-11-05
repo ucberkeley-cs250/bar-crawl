@@ -12,12 +12,12 @@ class UserJobConfig:
         self.username = 'sagark'
 
         # enable/disable redis stdout/stderr logging
-        self.logging_on = False
+        self.logging_on = True
 
         # your rocket-chip work directory on the master node
         # bar-crawl will look at commit hashes here to make sure it's testing the
         # right code with the right toolchain/tests
-        self.master_rocket_chip_dir = "/scratch/sagark/new-fixes-oct30"
+        self.master_rocket_chip_dir = "/scratch/sagark/rocket-chip"
         # risc-v tools installation. should be on nscratch
         #
         # it is expected that you name this directory after the commit ID 
@@ -35,7 +35,7 @@ class UserJobConfig:
         #
         # TODO: can auto-detect this based on what it's supposed to be from 
         # looking at master_rocket_chip_dir
-        self.rvenv = "/nscratch/bar-crawl/tools-installs/83ef8a6c609814fb35e166f063bd75ca91277ea9"
+        self.rvenv = "/nscratch/bar-crawl/tools-installs/3cd70fa04dfe3250b3ad89fd7cae0a795a9b41f6"
 
         """ DO NOT MODIFY """
         self.env_RISCV = self.rvenv
@@ -45,7 +45,7 @@ class UserJobConfig:
         """ END DO NOT MODIFY """
 
         self.MODEL='Top' # this currently should not be changed. see README
-        self.CONF = 'EOS24Config' # this is the overall config name (as opposed to EOS24Config0, EOS24Config1, etc)
+        self.CONF = 'ISCA2016Config' # this is the overall config name (as opposed to EOS24Config0, EOS24Config1, etc)
 
         """ DO NOT MODIFY """
         self.shell_env_args = {
@@ -65,7 +65,7 @@ class UserJobConfig:
         # easier to identify. this tag will be tacked onto the end of the job
         # output directory name. It can only contain letters, numbers, and
         # dashes. This is especially useful if you have uncommitted changes.
-        self.human_tag = "-sagar-oct30-run-uncert-08"
+        self.human_tag = "-sagar-hwacha-bump-100ps-off-srams-w-uncore-diff-sramfix"
 
         """ DO NOT MODIFY """
         for x in self.human_tag:
