@@ -43,7 +43,7 @@ def get_design_names(fname):
             des.append(linesplit[1])
     return des
 
-designs_scala = userjobconfig.master_rocket_chip_dir + '/src/main/scala/config/' + userjobconfig.CONF + '.scala'
+designs_scala = userjobconfig.distribute_rocket_chip_loc + '/' + j[jnum] + '/' + userjobconfig.CONF + '.scala'
 designs = get_design_names(designs_scala)
 
 for x in range(len(designs)):
