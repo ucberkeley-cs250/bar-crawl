@@ -106,6 +106,7 @@ def build_riscv_tests():
         local('cd ' + hashes['riscv-tests'] + ' && git checkout ' + hashes['riscv-tests'])
         local('cd ' + hashes['riscv-tests'] + ' && git submodule update --init')
         local('cd ' + hashes['riscv-tests'] + '/isa && make -j32')
+        local('cd ' + hashes['riscv-tests'] + '/benchmarks && make -j32')
 
 do_jackhammer()
 build_riscv_tests()

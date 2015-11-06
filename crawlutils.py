@@ -4,6 +4,9 @@ from fabric.api import *
 from fabric import operations
 import sys
 
+def split_test_name(type_test):
+    return type_test.split('-', 1)
+
 def read_tests(generated_src_dir, design_name):
     """ This will read the tests to run from
         generated_src_dir/Top.design_name.d
@@ -37,6 +40,8 @@ def read_tests(generated_src_dir, design_name):
             else:
                 is_asm = False
 
+    asm_tests = map(lambda x: 'isa-' + x, asm_tests)
+    other_tests = map(lambda x: 'benchmarks-' + x, other_tests)
 
     # we ignore benchmarks for now, which are in other:
     return asm_tests + other_tests
