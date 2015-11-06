@@ -184,13 +184,15 @@ def emulatortest(self, design_name, testname, jobinfo, userjobconfig):
     except SoftTimeLimitExceeded:
         return limit_exceeded()
 
-samplevcs = "cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+samplevcs = "cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/{}/{}.hex 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
 
 def vsim(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
     workdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vsim/vsim'
+    test_type, test_to_run = split_test_name(test_to_run)
+
     with lcd(workdir), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
-        res = local(samplevcs.format(design_name, userjobconfig.hashes['riscv-tests'], test_to_run, test_to_run), shell='/bin/bash')
+        res = local(samplevcs.format(design_name, userjobconfig.hashes['riscv-tests'], test_type, test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
         q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
@@ -206,13 +208,14 @@ def vsimtest(self, design_name, testname, jobinfo, userjobconfig):
     except SoftTimeLimitExceeded:
         return limit_exceeded()
 
-samplevcs_sim_rtl = 'cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]'
+samplevcs_sim_rtl = 'cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/{}/{}.hex 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]'
 
 def vcs_sim_rtl(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
     workdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vcs-sim-rtl/vcs-sim-rtl'
+    test_type, test_to_run = split_test_name(test_to_run)
     with lcd(workdir), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
-        res = local(samplevcs_sim_rtl.format(design_name, userjobconfig.hashes['riscv-tests'], test_to_run, test_to_run), shell='/bin/bash')
+        res = local(samplevcs_sim_rtl.format(design_name, userjobconfig.hashes['riscv-tests'], test_type, test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
         q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
@@ -229,13 +232,14 @@ def vcs_sim_rtl_test(self, design_name, testname, jobinfo, userjobconfig):
         return limit_exceeded()
 
 
-samplevcs_sim_gl_syn = "cd . && ./simv-{} -ucli -do +run.tcl +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/isa/{}.hex 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+samplevcs_sim_gl_syn = "cd . && ./simv-{} -ucli -do +run.tcl +dramsim +verbose +max-cycles=100000000 +loadmem=/nscratch/bar-crawl/tests-installs/{}/{}/{}.hex 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
 
 def vcs_sim_gl_syn(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
     workdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vcs-sim-gl-syn/vcs-sim-gl-syn'
+    test_type, test_to_run = split_test_name(test_to_run)
     with lcd(workdir), shell_env(**userjobconfig.shell_env_args), prefix('source ' + vlsi_bashrc), settings(warn_only=True):
-        res = local(samplevcs_sim_gl_syn.format(design_name, userjobconfig.hashes['riscv-tests'], test_to_run, test_to_run), shell='/bin/bash')
+        res = local(samplevcs_sim_gl_syn.format(design_name, userjobconfig.hashes['riscv-tests'], test_type, test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
         q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
