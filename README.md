@@ -76,23 +76,21 @@ How to Use bar-crawl:
 (The rest of this assumes the workers are already running. See below for instructions
 for starting a cluster)
 
-2) Set the following variables in `userconfig.py`:
+2) Set the following variables in `default.conf` (or make your own `.conf` file using `default.conf` as a template):
 
 * `username` - your username
 * `master_rocket_chip_dir` - your rocket-chip working directory
 * `rvenv` - path to your riscv-tools installation. The directory name should be a commit id.
 * `MODEL` - from rocket-chip (currently limited to "Top" due to [this](https://github.com/ucb-bar/jackhammer/commit/fa254a1d60f6a52819ffe9b8c8c9fe211fc3bbae))
 * `CONF` - from rocket-chip
-* `rocket_chip_location` - github repo for rocket chip
-* `tests_location` - github repo for riscv-tests
+* `rocket_chip_url` - github repo for rocket chip
+* `tests_url` - github repo for riscv-tests
 * `human_tag` - user-specifiable string that will be added to the end of the job name, to let you easily identify the job
 * `distribute_rocket_chip_loc` - the directory where your job directories will be created, usually defined per-project
-* `tests` - comment out parts of the flow that you don't want to run. Currently supports emulator, vsim, vcs-sim-rtl, dc-syn, vcs-sim-gl-syn, icc-par
-* `enableEMAIL` - Set this to true if you want job completion emails. 
-* `mailgun_api` - If you enable emails, the API key for mailgun. This currently uses a mailgun API key available in a file on nscratch, but you can use your own.
+* `enable-email` - Set this to true if you want job completion emails. 
 * `email_addr` - An address to send a completion email
-* `cc_addr` - A secondary address to send a completion email
-
+* `email_addr2` - A secondary address to send a completion email
+* `tests` group - Set items to false if you don't want them to run, e.g. emulator = false
 
 bar-crawl will take the latest commit in master_rocket_chip_dir, generate a set of patches against that commit for any uncommitted changes (except uncommitted submodule bumps, a limitation of git patches), and use those to run your distributed tests. bar-crawl pulls from GitHub, so you'll need to make sure that the latest commit on your working copy is pushed to GitHub (but you can also have local changes, which will be mirrored on the workers). Pulling from GitHub allows you to always test against a "fresh-copy" + patch and means that you don't have to make changes to your working copy (e.g. running make clean) to reduce the amount of data transfer. See the Patching section for a listing of the changes that the bar-crawl patching mechanism can/cannot handle.
 
@@ -102,6 +100,13 @@ bar-crawl will take the latest commit in master_rocket_chip_dir, generate a set 
 
 ```
 python run-job.py
+```
+
+This uses `default.conf`. If you made your own config file that is not named 
+`default.conf`, run:
+
+```
+python run-job.py YOUR_CONF_FILE
 ```
 
 Appendices:
