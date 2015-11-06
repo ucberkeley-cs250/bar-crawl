@@ -39,7 +39,7 @@ def read_tests(generated_src_dir, design_name):
 
 
     # we ignore benchmarks for now, which are in other:
-    return asm_tests
+    return asm_tests + other_tests
 
 """ Utils/Globals below"""
 def get_hash(p):
