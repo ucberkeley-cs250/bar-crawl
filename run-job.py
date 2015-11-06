@@ -10,11 +10,16 @@ from copy import copy
 from tasks import *
 import os
 import datetime
+import sys
 
 from userconfig import UserJobConfig
 from crawlutils import *
 
-userjobconfig = UserJobConfig()
+# if user has specified a config file, use that, else default.conf
+if len(sys.argv) > 1:
+    userjobconfig = UserJobConfig(sys.argv[1])
+else:
+    userjobconfig = UserJobConfig()
 
 workers = app.control.inspect().ping()
 if workers == None:
