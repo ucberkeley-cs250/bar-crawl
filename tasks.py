@@ -176,7 +176,7 @@ def emulator(design_name, test_to_run, jobinfo, userjobconfig):
         return ["PASS", q.stdout.split()[2]]
 
 # 5 min timeout per test
-@app.task(bind=True, soft_time_limit=3600)
+@app.task(bind=True, soft_time_limit=3600*24)
 def emulatortest(self, design_name, testname, jobinfo, userjobconfig):
     try:
         rval = execute(emulator, design_name, testname, jobinfo, userjobconfig).values()
@@ -200,7 +200,7 @@ def vsim(design_name, test_to_run, jobinfo, userjobconfig):
         return ["PASS", q.stdout.split()[1]]
 
 # 5 min timeout per test
-@app.task(bind=True, soft_time_limit=3600)
+@app.task(bind=True, soft_time_limit=3600*24)
 def vsimtest(self, design_name, testname, jobinfo, userjobconfig):
     try:
         rval = execute(vsim, design_name, testname, jobinfo, userjobconfig).values()
@@ -223,7 +223,7 @@ def vcs_sim_rtl(design_name, test_to_run, jobinfo, userjobconfig):
         return ["PASS", q.stdout.split()[1]]
 
 # 5 min timeout per test
-@app.task(bind=True, soft_time_limit=3600)
+@app.task(bind=True, soft_time_limit=3600*24)
 def vcs_sim_rtl_test(self, design_name, testname, jobinfo, userjobconfig):
     try:
         rval = execute(vcs_sim_rtl, design_name, testname, jobinfo, userjobconfig).values()
