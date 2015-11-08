@@ -29,6 +29,9 @@ class DebTask(Task):
 
 @app.task(bind=True, base=DebTask)
 def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
+    if userjobconfig.enableEMAIL:
+        email_start(userjobconfig, jobinfo, design_name, self.request.hostname)
+
     rs = ResultSet([])
 
     rl = RedisLogger(design_name, jobinfo, userjobconfig.logging_on)

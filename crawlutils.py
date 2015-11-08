@@ -254,6 +254,37 @@ Below is the additional information you supplied about this job:
               }
         )
 
+def email_start(userjobconfig, jobinfo, design_name, hostname):
+    emails = userjobconfig.emails
+    subj = 'bar-crawl START: Design {} in Job {} has started'.format(design_name, jobinfo)
+    outputdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo
+    msg = """Design {} in job {} has started! You will receive an email when the job succeeds/fails.
+Archived results will be placed in: {}
+
+Temporary results are located on: {}
+In: /scratch/{}/celery-temp/{}/{}
+
+Below is the additional information you supplied about this job:
+----------------------------------------------------------------
+{}
+
+    """.format(design_name, jobinfo, outputdir + '/' + design_name, 
+            hostname,
+            userjobconfig.username,
+            jobinfo,
+            design_name,
+            userjobconfig.longdescription)
+    return requests.post(
+        "https://api.mailgun.net/v3/bar-crawl.sagark.org/messages",
+        auth=("api", userjobconfig.mailgun_api),
+        data={"from": "bar-crawl <mailgun@bar-crawl.sagark.org>",
+              "to": emails,
+              "subject": subj,
+              "text": msg
+              }
+        )
+
+
 def kill_child_processes(parent_pid, sig=signal.SIGTERM):
     ps_command = subprocess.Popen("ps -o pid --ppid %d --noheaders" % parent_pid, shell=True, stdout=subprocess.PIPE)
     ps_output = ps_command.stdout.read()
