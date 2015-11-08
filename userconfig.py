@@ -106,6 +106,8 @@ class UserJobConfig:
 
         self.hashes = {} # populated later
 
+        self.longdescription = config.get('job', 'longdescription')
+
     def __str__(self):
         return self.__repr__()
 

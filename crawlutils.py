@@ -187,16 +187,26 @@ def apply_recursive_patches(patch_dir, apply_to_dir):
             local('git apply ' + tempfile)
 
 
-def email_user(userjobconfig, jobinfo, design_name):
+def email_user(userjobconfig, jobinfo, design_name, hostname):
     emails = userjobconfig.emails
     subj = 'bar-crawl: Design {} in Job {} has completed'.format(design_name, jobinfo)
     outputdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo
     msg = """Design {} in job {} has completed!
 You can find archived results in: {}
 
-Temporary results are located on: HOSTNAME
-In: DIRECTORY
-    """.format(design_name, jobinfo, outputdir + '/' + design_name)
+Temporary results are located on: {}
+In: /scratch/{}/celery-temp/{}/{}
+
+Below is the additional information you supplied about this job:
+----------------------------------------------------------------
+{}
+
+    """.format(design_name, jobinfo, outputdir + '/' + design_name, 
+            hostname,
+            userjobconfig.username,
+            jobinfo,
+            design_name,
+            userjobconfig.longdescription)
     return requests.post(
         "https://api.mailgun.net/v3/bar-crawl.sagark.org/messages",
         auth=("api", userjobconfig.mailgun_api),

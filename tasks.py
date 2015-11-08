@@ -158,7 +158,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
 
     rl.clear_log() # clear the redis log list
     if userjobconfig.enableEMAIL:
-        email_user(userjobconfig, jobinfo, design_name)
+        email_user(userjobconfig, jobinfo, design_name, self.request.hostname)
     return rs
 
 sampleemulator = "./emulator-Top-{} +dramsim +max-cycles=100000000 +verbose +loadmem=/nscratch/bar-crawl/tests-installs/{}/{}/{}.hex none 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
