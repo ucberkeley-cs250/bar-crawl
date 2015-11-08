@@ -86,13 +86,13 @@ def do_jackhammer():
     #create a directory in distribute for each design, test
     for x in designs:
         for y in userjobconfig.tests:
-            local('mkdir -p ' + fulljobdir + '/' + x + '/' + y)
+            local('mkdir -p -m 0775 ' + fulljobdir + '/' + x + '/' + y)
         # always make the emulator directory
-        local('mkdir -p ' + fulljobdir + '/' + x + '/emulator')
+        local('mkdir -p -m 0775 ' + fulljobdir + '/' + x + '/emulator')
 
     # directory to store patches if there are local changes
     patchdir = fulljobdir + '/patches'
-    local('mkdir -p ' + patchdir)
+    local('mkdir -p -m 0775 ' + patchdir)
     generate_recursive_patches(userjobconfig.master_rocket_chip_dir, patchdir)
 
 def build_riscv_tests():
@@ -101,7 +101,7 @@ def build_riscv_tests():
     if hashes['riscv-tests'] == hashes['riscv-tools']:
         print(bcolors.FAIL + "riscv-tests hash matches riscv-tools hash. Did you forget to init the\nriscv-tests submodule?" + bcolors.ENDC)
         exit(1)
-    with lcd('/nscratch/bar-crawl/tests-installs'), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
+    with lcd(userjobconfig.install_dir + '/tests-installs'), shell_env(**userjobconfig.shell_env_args), settings(warn_only=True):
         local('git clone ' + userjobconfig.tests_location + ' ' + hashes['riscv-tests'])
         local('cd ' + hashes['riscv-tests'] + ' && git checkout ' + hashes['riscv-tests'])
         local('cd ' + hashes['riscv-tests'] + ' && git submodule update --init')
