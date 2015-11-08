@@ -4,7 +4,11 @@ import sys
 from userconfig import UserJobConfig
 import os
 
-userjobconfig = UserJobConfig()
+# if user has specified a config file, use that, else default.conf
+if len(sys.argv) > 1:
+    userjobconfig = UserJobConfig(sys.argv[1])
+else:
+    userjobconfig = UserJobConfig()
 
 def get_list_of_jobs():
     j = os.listdir(userjobconfig.distribute_rocket_chip_loc)

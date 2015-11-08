@@ -12,7 +12,7 @@ Features:
 * A "watch" script to let you access output from compile jobs on worker nodes, without writing all output to a file. This lets you easily track "stuck" jobs that are running remotely.
 * Easily scale-up/down machines in your cluster, while jobs are running
 * Lets users share installations of riscv-tools and riscv-tests, but ensures that consistent versions are used based on hashes in your working copy
-* WIP: Store important features from results into a DB for easy analysis. You can currently access a grid of test results/cycle counts for your job and export CSV results at a8.millennium.berkeley.edu:8080/jobs?limit=10000&jobid=JOB_NAME. For example:
+* WIP: Store important features from results into a DB for easy analysis. You can currently access a grid of test results/cycle counts for your job and export CSV results at fbox.millennium.berkeley.edu:8080/jobs?limit=10000&jobid=JOB_NAME. For example:
 
 ![alt-text](https://www.eecs.berkeley.edu/~skarandikar/host/bar-crawl-screenshot.png "Bar Crawl Screenshot")
 
@@ -94,7 +94,7 @@ for starting a cluster)
 
 bar-crawl will take the latest commit in master_rocket_chip_dir, generate a set of patches against that commit for any uncommitted changes (except uncommitted submodule bumps, a limitation of git patches), and use those to run your distributed tests. bar-crawl pulls from GitHub, so you'll need to make sure that the latest commit on your working copy is pushed to GitHub (but you can also have local changes, which will be mirrored on the workers). Pulling from GitHub allows you to always test against a "fresh-copy" + patch and means that you don't have to make changes to your working copy (e.g. running make clean) to reduce the amount of data transfer. See the Patching section for a listing of the changes that the bar-crawl patching mechanism can/cannot handle.
 
-3) If you want to view the web-ui, open localhost:8080 on a8 (the current bar-crawl-web host). This page is not publicly visible - a tunnel script is included in `clusterman/ssh-tunnel-a8.sh` or `clusterman/autossh-tunnel-a8.sh`.
+3) If you want to view the web-ui, open localhost:8080 on fbox (the current bar-crawl-web host). This page is not publicly visible - a tunnel script is included in `clusterman/ssh-tunnel-fbox.sh` or `clusterman/autossh-tunnel-fbox.sh`.
 
 4) Start the job using
 
