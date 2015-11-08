@@ -2,7 +2,7 @@ import redis
 import re
 import os
 
-from celery import Celery
+from celery import Celery, Task
 from celery.result import ResultSet
 from celery.exceptions import SoftTimeLimitExceeded
 from celery.signals import task_revoked
@@ -14,9 +14,21 @@ from copy import copy
 app = Celery('tasks', backend='rpc://', broker=redis_conf_string)
 app.conf.CELERY_TIMEZONE = 'America/Los_Angeles'
 
-@app.task(bind=True)
-def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
+class DebTask(Task):
+    abstract = True
 
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        if args[3].enableEMAIL:
+            email_failure(args[3], args[2], args[0], self.request.hostname, einfo)
+        pass
+
+    def on_success(self, retval, task_id, args, kwargs):
+        if args[3].enableEMAIL:
+            email_success(args[3], args[2], args[0], self.request.hostname)
+        return
+
+@app.task(bind=True, base=DebTask)
+def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
     rs = ResultSet([])
 
     rl = RedisLogger(design_name, jobinfo, userjobconfig.logging_on)
@@ -157,8 +169,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
 
 
     rl.clear_log() # clear the redis log list
-    if userjobconfig.enableEMAIL:
-        email_user(userjobconfig, jobinfo, design_name, self.request.hostname)
+
     return rs
 
 sampleemulator = "./emulator-Top-{} +dramsim +max-cycles=100000000 +verbose +loadmem={}/tests-installs/{}/{}/{}.hex none 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"

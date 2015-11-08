@@ -187,9 +187,46 @@ def apply_recursive_patches(patch_dir, apply_to_dir):
             local('git apply ' + tempfile)
 
 
-def email_user(userjobconfig, jobinfo, design_name, hostname):
+def email_failure(userjobconfig, jobinfo, design_name, hostname, exc):
     emails = userjobconfig.emails
-    subj = 'bar-crawl: Design {} in Job {} has completed'.format(design_name, jobinfo)
+    subj = 'bar-crawl FAILURE: Design {} in Job {} has failed'.format(design_name, jobinfo)
+    outputdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo
+    msg = """Design {} in job {} has failed.
+You can find archived results in: {}
+
+Temporary results are located on: {}
+In: /scratch/{}/celery-temp/{}/{}
+
+Below is the additional information you supplied about this job:
+----------------------------------------------------------------
+{}
+----------------------------------------------------------------
+Below is the exception if one was generated:
+----------------------------------------------------------------
+{}
+----------------------------------------------------------------
+
+    """.format(design_name, jobinfo, outputdir + '/' + design_name, 
+            hostname,
+            userjobconfig.username,
+            jobinfo,
+            design_name,
+            userjobconfig.longdescription,
+            str(exc))
+    return requests.post(
+        "https://api.mailgun.net/v3/bar-crawl.sagark.org/messages",
+        auth=("api", userjobconfig.mailgun_api),
+        data={"from": "bar-crawl <mailgun@bar-crawl.sagark.org>",
+              "to": emails,
+              "subject": subj,
+              "text": msg
+              }
+        )
+
+
+def email_success(userjobconfig, jobinfo, design_name, hostname):
+    emails = userjobconfig.emails
+    subj = 'bar-crawl SUCCESS: Design {} in Job {} has completed'.format(design_name, jobinfo)
     outputdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo
     msg = """Design {} in job {} has completed!
 You can find archived results in: {}

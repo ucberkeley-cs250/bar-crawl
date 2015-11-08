@@ -115,7 +115,7 @@ compiles = ResultSet([])
 for x in designs:
     compiles.add(compile_and_copy.delay(x, hashes, jobdirname, userjobconfig))
 
-print(bcolors.OKBLUE + "Your job has been launched. You can monitor it at a8:8080" + bcolors.ENDC)
+print(bcolors.OKBLUE + "Your job has been launched. You can monitor it at fbox:8080" + bcolors.ENDC)
 print(bcolors.OKGREEN + "Your job id is " + jobdirname + bcolors.ENDC)
 
 
