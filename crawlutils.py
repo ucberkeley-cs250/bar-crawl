@@ -3,6 +3,11 @@ import redis
 from fabric.api import *
 from fabric import operations
 import sys
+import requests
+import subprocess
+import signal
+import os
+
 
 def split_test_name(type_test):
     return type_test.split('-', 1)
@@ -183,23 +188,24 @@ def apply_recursive_patches(patch_dir, apply_to_dir):
 
 
 def email_user(userjobconfig, jobinfo, design_name):
-    outputdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo 
-    cmdstr = """curl -s --user 'api:{}' \
-    https://api.mailgun.net/v3/bar-crawl.sagark.org/messages \
-    -F from='bar-crawl <mailgun@bar-crawl.sagark.org>' \
-    -F to={} \
-    -F to={} \
-    -F subject='bar-crawl: Design {} in Job {} has Completed' \
-    -F text='Design {} for job {} has completed!\nYou can find results in: {}'""".format(
-            userjobconfig.mailgun_api, userjobconfig.email_addr, 
-            userjobconfig.cc_addr, design_name, jobinfo, design_name, jobinfo,  outputdir + 
-            '/' + design_name)
-    local(cmdstr)
+    emails = [userjobconfig.email_addr, userjobconfig.cc_addr]
+    subj = 'bar-crawl: Design {} in Job {} has completed'.format(design_name, jobinfo)
+    outputdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo
+    msg = """Design {} in job {} has completed!
+You can find archived results in: {}
 
-
-import subprocess
-import signal
-import os
+Temporary results are located on: HOSTNAME
+In: DIRECTORY
+    """.format(design_name, jobinfo, outputdir + '/' + design_name)
+    return requests.post(
+        "https://api.mailgun.net/v3/bar-crawl.sagark.org/messages",
+        auth=("api", userjobconfig.mailgun_api),
+        data={"from": "bar-crawl <mailgun@bar-crawl.sagark.org>",
+              "to": emails,
+              "subject": subj,
+              "text": msg
+              }
+        )
 
 def kill_child_processes(parent_pid, sig=signal.SIGTERM):
     ps_command = subprocess.Popen("ps -o pid --ppid %d --noheaders" % parent_pid, shell=True, stdout=subprocess.PIPE)
