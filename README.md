@@ -78,18 +78,19 @@ for starting a cluster)
 
 2) Set the following variables in `default.conf` (or make your own `.conf` file using `default.conf` as a template):
 
-* `username` - your username
-* `master_rocket_chip_dir` - your rocket-chip working directory
-* `rvenv` - path to your riscv-tools installation. The directory name should be a commit id.
-* `MODEL` - from rocket-chip (currently limited to "Top" due to [this](https://github.com/ucb-bar/jackhammer/commit/fa254a1d60f6a52819ffe9b8c8c9fe211fc3bbae))
-* `CONF` - from rocket-chip
-* `rocket_chip_url` - github repo for rocket chip
-* `tests_url` - github repo for riscv-tests
-* `human_tag` - user-specifiable string that will be added to the end of the job name, to let you easily identify the job
-* `distribute_rocket_chip_loc` - the directory where your job directories will be created, usually defined per-project
+* `username` - Your username
+* `master_rocket_chip_dir` - Your rocket-chip working directory
+* `install_dir` - The location of your tools_installs, tests_installs directories
+* `rvenv_hash` - Commit hash of the riscv-tools commit you want to use for your tests
+* `longdescription` - Use this to keep track of notes/information about your job. It will be included in the job completion emails. You can create a multi-line description by indenting lines after the first one.
+* `MODEL` - From rocket-chip (currently limited to "Top" due to [this](https://github.com/ucb-bar/jackhammer/commit/fa254a1d60f6a52819ffe9b8c8c9fe211fc3bbae))
+* `CONF` - From rocket-chip
+* `rocket_chip_url` - Github repo for rocket chip
+* `tests_url` - Github repo for riscv-tests
+* `human_tag` - User-specifiable string that will be added to the end of the job name, to let you easily identify the job
+* `distribute_rocket_chip_loc` - The directory where your job directories will be created, usually defined per-project
 * `enable-email` - Set this to true if you want job completion emails. 
-* `email_addr` - An address to send a completion email
-* `email_addr2` - A secondary address to send a completion email
+* `emails` - Comma-separated list of emails to send job completion emails to.
 * `tests` group - Set items to false if you don't want them to run, e.g. emulator = false
 
 bar-crawl will take the latest commit in master_rocket_chip_dir, generate a set of patches against that commit for any uncommitted changes (except uncommitted submodule bumps, a limitation of git patches), and use those to run your distributed tests. bar-crawl pulls from GitHub, so you'll need to make sure that the latest commit on your working copy is pushed to GitHub (but you can also have local changes, which will be mirrored on the workers). Pulling from GitHub allows you to always test against a "fresh-copy" + patch and means that you don't have to make changes to your working copy (e.g. running make clean) to reduce the amount of data transfer. See the Patching section for a listing of the changes that the bar-crawl patching mechanism can/cannot handle.
