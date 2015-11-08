@@ -39,13 +39,12 @@ class UserJobConfig:
         #
         # TODO: can auto-detect this based on what it's supposed to be from 
         # looking at master_rocket_chip_dir
-        self.rvenv = config.get('job', 'rvenv')
-
+        self.rvenv_installed_hash = config.get('job', 'rvenv_hash')
+        self.install_dir = config.get('job', 'install_dir')
         """ DO NOT MODIFY """
-        self.env_RISCV = self.rvenv
-        self.env_PATH = self.rvenv+"/bin:$PATH"
-        self.env_LD_LIBRARY = self.rvenv+"/lib"
-        self.rvenv_installed_hash = self.rvenv.split("/")[-1]
+        self.env_RISCV = self.install_dir+'/tools-installs/'+self.rvenv_installed_hash
+        self.env_PATH = self.env_RISCV+"/bin:$PATH"
+        self.env_LD_LIBRARY = self.env_RISCV+"/lib"
         """ END DO NOT MODIFY """
 
         self.MODEL = config.get('rocket-chip-setup', 'MODEL')
