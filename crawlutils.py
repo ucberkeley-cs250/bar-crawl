@@ -188,7 +188,7 @@ def apply_recursive_patches(patch_dir, apply_to_dir):
 
 
 def email_user(userjobconfig, jobinfo, design_name):
-    emails = [userjobconfig.email_addr, userjobconfig.cc_addr]
+    emails = userjobconfig.emails
     subj = 'bar-crawl: Design {} in Job {} has completed'.format(design_name, jobinfo)
     outputdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo
     msg = """Design {} in job {} has completed!

@@ -102,8 +102,7 @@ class UserJobConfig:
             apifile = open('/nscratch/bar-crawl/mailgun-api', 'r')
             self.mailgun_api = apifile.readlines()[0].strip()
             apifile.close()
-            self.email_addr = config.get('user', 'email_addr')
-            self.cc_addr = config.get('user', 'email_addr2')
+            self.emails = list(map(lambda x: x.strip(), config.get('user', 'emails').split(",")))
 
         self.hashes = {} # populated later
 
