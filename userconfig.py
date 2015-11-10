@@ -93,7 +93,7 @@ class UserJobConfig:
 
         self.tests = list(filter(lambda x: config.getboolean('tests', x), possible_tests))
 
-        self.enableEMAIL = config.get('job', 'enable-email')
+        self.enableEMAIL = config.getboolean('job', 'enable-email')
         # you need to obtain a mailgun API key for emails
         if (self.enableEMAIL):
             """ Get the mailgun@bar-crawl.sagark.org API key.
