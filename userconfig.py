@@ -89,6 +89,7 @@ class UserJobConfig:
                 'dc-syn',
                 'vcs-sim-gl-syn',
                 'icc-par',
+                'vcs-sim-gl-par',
         ]
 
         self.tests = list(filter(lambda x: config.getboolean('tests', x), possible_tests))

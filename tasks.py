@@ -152,7 +152,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
             rl2.local_logged('make 2>&1')
             # todo copy
             rl.local_logged('cp -Lr ../vcs-sim-gl-syn ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vcs-sim-gl-syn/')
-        # copy dramsim2_ini directory for vcs-sim-rtl
+        # copy dramsim2_ini directory for vcs-sim-gl-syn
         with lcd(userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name):
             rl.local_logged('cp -r emulator/emulator/dramsim2_ini vcs-sim-gl-syn/vcs-sim-gl-syn/')
 
@@ -170,6 +170,18 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
             rl.local_logged('cp -r current-icc/reports ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/icc-par/')
             rl.local_logged('cp -r current-icc/results ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/icc-par/')
 
+    if 'vcs-sim-gl-par' in userjobconfig.tests:
+        with lcd(rc_dir + '/vlsi/vcs-sim-gl-par'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
+            # todo actually use the name
+            rl2.local_logged('make 2>&1')
+            # todo copy
+            rl.local_logged('cp -Lr ../vcs-sim-gl-par ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vcs-sim-gl-par/')
+        # copy dramsim2_ini directory for vcs-sim-gl-par
+        with lcd(userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name):
+            rl.local_logged('cp -r emulator/emulator/dramsim2_ini vcs-sim-gl-par/vcs-sim-gl-par/')
+
+        for y in testslist:
+            rs.add(vcs_sim_gl_par_test.delay(design_name, y, jobinfo, userjobconfig))
 
     rl.clear_log() # clear the redis log list
 
@@ -265,6 +277,30 @@ def vcs_sim_gl_syn(design_name, test_to_run, jobinfo, userjobconfig):
 def vcs_sim_gl_syn_test(self, design_name, testname, jobinfo, userjobconfig):
     try:
         rval = execute(vcs_sim_gl_syn, design_name, testname, jobinfo, userjobconfig).values()
+        return rval
+    except SoftTimeLimitExceeded:
+        return limit_exceeded()
+
+
+samplevcs_sim_gl_par = "cd . && ./simv-{} -ucli -do +run.tcl +dramsim +verbose +max-cycles=100000000 +loadmem={}/tests-installs/{}/{}/{}.hex 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+
+def vcs_sim_gl_par(design_name, test_to_run, jobinfo, userjobconfig):
+    """ run a test """
+    workdir = userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/vcs-sim-gl-par/vcs-sim-gl-par'
+    test_type, test_to_run = split_test_name(test_to_run)
+    with lcd(workdir), shell_env(**userjobconfig.shell_env_args), prefix('source ' + vlsi_bashrc), settings(warn_only=True):
+        res = local(samplevcs_sim_gl_par.format(design_name,userjobconfig.install_dir, userjobconfig.hashes['riscv-tests'], test_type, test_to_run, test_to_run), shell='/bin/bash')
+        if res.failed:
+            return "FAIL"
+        q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
+        # return "PASS" and # of cycles
+        return ["PASS", q.stdout.split()[1]]
+
+# no time-limit on gl-par
+@app.task(bind=True)
+def vcs_sim_gl_par_test(self, design_name, testname, jobinfo, userjobconfig):
+    try:
+        rval = execute(vcs_sim_gl_par, design_name, testname, jobinfo, userjobconfig).values()
         return rval
     except SoftTimeLimitExceeded:
         return limit_exceeded()
