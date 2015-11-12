@@ -69,7 +69,7 @@ def get_hashes(base_dir):
         d[x.rsplit('/', 1)[-1]] = get_hash(x)
     return d
 
-vlsi_bashrc = '/ecad/tools/vlsi.bashrc'
+vlsi_bashrc = '/nscratch/sagark/vlsi2.bashrc'
 
 # this is the redis server that is used by celery/flower and the watch mechanism
 # it's a good idea to put this on a machine with lots of RAM
