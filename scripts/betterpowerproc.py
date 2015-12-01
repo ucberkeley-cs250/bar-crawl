@@ -14,7 +14,7 @@ class TreeNode:
         self.parent = parent
         self.children = []
         self.nest_level = nest_level
-        self.data = data
+        self.data = data.strip()
 
     def is_ancestor(self, potential_ancestor):
         """ Useful to prevent accidentally double counting """
@@ -36,6 +36,21 @@ class TreeNode:
         while c.parent != None:
             c = c.parent
         return c
+
+    def __repr__(self):
+        return " " * self.nest_level + self.data
+
+    def __str__(self):
+        return self.__repr__()
+
+    def print_tree(self):
+        """ DFS to print the full tree as it appears in the pt-pwr output """
+        visit = [self]
+        while visit != []:
+            curr = visit.pop(0)
+            print curr
+            visit = curr.children + visit
+
 
 ## two spaces = one indent level in the log
 
@@ -95,4 +110,4 @@ def log_to_tree(pt_pwr_file):
 
 if __name__ == '__main__':
     l = log_to_tree(sys.argv[1])
-
+    l.print_tree()
