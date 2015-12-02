@@ -143,3 +143,14 @@ if __name__ == '__main__':
     final_outputs['Leakage'] = top_collectresult['Top'].leak_power
     print final_outputs
 
+    des, bench = sys.argv[1].split("/")
+    bench = bench.split(".")[0]
+
+    outheader = "Design,Benchmark,"
+    outdata = des + "," + bench + ","
+    for x in final_outputs.keys():
+        outheader += x + ","
+        outdata += str(final_outputs[x]) + ","
+
+    print outheader
+    print outdata
