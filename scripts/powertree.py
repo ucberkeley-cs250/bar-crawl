@@ -24,14 +24,17 @@ class PowerData:
             self.percent = 0.0
 
     def __repr__(self):
-        return self.origdata
+        if self.origdata is not None:
+            return self.origdata
+        else:
+            if len(self.name) > 100:
+                truncatename = self.name[:100] + "..."
+            else:
+                truncatename = self.name
+            return str([truncatename, self.int_power, self.switch_power, self.leak_power, self.total_power, self.percent])
 
     def __str__(self):
-        if len(self.name) > 100:
-            truncatename = self.name[:100] + "..."
-        else:
-            truncatename = self.name
-        return str([truncatename, self.int_power, self.switch_power, self.leak_power, self.total_power, self.percent])
+        return self.__repr__()
 
 class TreeNode:
     """ Simple tree structure for python representation of pt-pwr report. """

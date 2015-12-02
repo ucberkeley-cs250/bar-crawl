@@ -5,17 +5,20 @@ import sys
 from powertree import *
 import re
 
-
-
-lines_to_collect = {
+top_lines_to_collect = {
         'Top': ["Top"],
         'Tile': ["RocketTile (RocketTile)"],
         'Hwacha': ["Hwacha (Hwacha)"],
-        'frontend': ["rocc (RoCCUnit)", "icache (HwachaFrontend)", "VRU (VRU)", "scalar (ScalarUnit)"],
-        'func_unit': ["ALUSlice_", "FMASlice", "IMulSlice", "FCmpSlice", "FConvSlice", "FDivSlice", "IDivSlice"],
-        'mem': ["vxu_dcc", "vmu (VMU)"], # double counting handled below
-        'control': ["vxu_exp (Expander)", "ctrl (LaneCtrl)", "vxu_seq (LaneSequencer)", "mseq (MasterSequencer)"],
-        'banks': ["rf (BankRegfile"],
+        }
+
+
+
+hwacha_lines_to_collect = {
+        'Scalar + Frontend': ["rocc (RoCCUnit)", "icache (HwachaFrontend)", "VRU (VRU)", "scalar (ScalarUnit)"],
+        'Functional Units': ["ALUSlice_", "FMASlice", "IMulSlice", "FCmpSlice", "FConvSlice", "FDivSlice", "IDivSlice"],
+        'VMU': ["vxu_dcc", "vmu (VMU)"], # double counting handled below
+        'Control': ["vxu_exp (Expander)", "ctrl (LaneCtrl)", "vxu_seq (LaneSequencer)", "mseq (MasterSequencer)"],
+        'Banks': ["rf (BankRegfile"],
       }
 
 
@@ -28,7 +31,7 @@ def add_powerdata(x, y):
     res.leak_power = x.leak_power + y.leak_power
     res.total_power = x.total_power + y.total_power
     res.percent = x.percent + y.percent
-    res.origdata = "Not constructed from Line"
+    res.origdata = None
     return res
 
 def sub_powerdata(x, y):
@@ -39,7 +42,7 @@ def sub_powerdata(x, y):
     res.leak_power = x.leak_power - y.leak_power
     res.total_power = x.total_power - y.total_power
     res.percent = x.percent - y.percent
-    res.origdata = "Not constructed from Line"
+    res.origdata = None
     return res
 
 
@@ -61,40 +64,82 @@ def lit_to_reg(lit):
     """
     return "^" + re.escape(lit)
 
+
+
 if __name__ == '__main__':
+    hwacha_collectresult = {
+        'Scalar + Frontend': [],
+        'Functional Units': [],
+        'VMU': [], # double counting handled below
+        'Control': [],
+        'Banks': [],
+    }
+
+    top_collectresult = dict()
+
+    final_outputs = {
+        'Hwacha Interconnect' : None,
+        'Rocket + L1' : None, # RocketTile - Hwacha
+        'L2' : None, # Top - Tile
+    }
     l = log_to_tree(sys.argv[1])
-    #l.print_tree()
 
-    all_item = []
-    for x in lines_to_collect.keys():
-        for y in lines_to_collect[x]:
-            all_item += l.search(lit_to_reg(y))
+    hwacha_item = []
+    for x in hwacha_lines_to_collect.keys():
+        for y in hwacha_lines_to_collect[x]:
+            searchres = l.search(lit_to_reg(y))
+            if searchres == []:
+                print "ERR " + y + " not found!"
+                exit(1)
+            hwacha_item += searchres
+            hwacha_collectresult[x] += searchres
 
-    print "Printing any overlaps below:\n------"
-    n_to_n_ancestor_check(all_item)
+    for x in hwacha_collectresult.keys():
+        hwacha_collectresult[x] = map(lambda x: x.data, hwacha_collectresult[x])
+        hwacha_collectresult[x] = reduce(add_powerdata, hwacha_collectresult[x])
+
+
+
+    print "Printing any overlaps below. Make sure you handle these in the code:\n------"
+    double_counted = n_to_n_ancestor_check(hwacha_item)
     print "------\nPrinted any overlaps above."
-
-    hwachachunks = ['frontend', 'func_unit', 'mem', 'control', 'banks']
-    hwachapieces = []
-    for k in hwachachunks:
-        for y in lines_to_collect[k]:
-            r = l.search(lit_to_reg(y))
-            if r == []:
-                print "ERR " + y + " Not found"
-            hwachapieces += r
-
-    dat = map(lambda x: x.data, hwachapieces)
-    a = reduce(add_powerdata, dat)
-    print a
-    print l.search(lit_to_reg("Hwacha (Hwacha)"))
-    double_counted = n_to_n_ancestor_check(hwachapieces)
+    
+    ## YOU WILL MANUALLY NEED TO FIX ANY DOUBLE COUNTED ITEMS HERE
+    ## this is an example where we know that all the double counting happens in 
+    ## VMU, so fix it
     dc = map(lambda x: x.data, double_counted)
     sum_sub = reduce(add_powerdata, dc)
-    print double_counted
-    print sum_sub
-    out = sub_powerdata(a, sum_sub)
-    print out
-    print l.search(lit_to_reg("Hwacha (Hwacha)"))
+    hwacha_collectresult['VMU'] = sub_powerdata(hwacha_collectresult['VMU'], sum_sub)
+    double_counted = []
 
 
+    ## END HANDLING DOUBLE COUNTED ITEMS
+    assert len(double_counted) == 0, "You have double counted items. You must manually fix and then pop them \nfrom double_counted before the script will proceed"
+
+    collected_sum = reduce(add_powerdata, hwacha_collectresult.values())
+    print collected_sum
+    real_hwacha_tot = l.search(lit_to_reg("Hwacha (Hwacha)"))[0].data
+    print hwacha_collectresult
+    final_outputs['Hwacha Interconnect'] = sub_powerdata(real_hwacha_tot, collected_sum)
+    for x in hwacha_collectresult.keys():
+        final_outputs[x] = hwacha_collectresult[x]
+
+
+    for x in top_lines_to_collect.keys():
+        top_collectresult[x] = l.search(lit_to_reg(top_lines_to_collect[x][0]))[0].data
+
+    final_outputs['Rocket + L1'] = sub_powerdata(top_collectresult['Tile'], top_collectresult['Hwacha'])
+    final_outputs['L2'] = sub_powerdata(top_collectresult['Top'], top_collectresult['Tile'])
+
+
+    tot = 0
+    for x in final_outputs.keys():
+        tot += final_outputs[x].percent
+    print tot
+
+    for x in final_outputs.keys():
+        final_outputs[x] = final_outputs[x].total_power - final_outputs[x].leak_power
+
+    final_outputs['Leakage'] = top_collectresult['Top'].leak_power
+    print final_outputs
 
