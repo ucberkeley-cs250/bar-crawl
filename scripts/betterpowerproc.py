@@ -1,113 +1,100 @@
-""" Properly extract data from pt-pwr results """
+
+
 
 import sys
-
-class TreeNode:
-    """ Simple tree structure for python representation of pt-pwr report. """
-
-    def __init__(self, parent, nest_level, data):
-        # parent = None for root 
-        # nest_level = indent in log 0 for root, 2, 4, 6, ...
-        # next level is not autoadjusted when nodes are moved around, only 
-        # correct at tree construction time
-        
-        self.parent = parent
-        self.children = []
-        self.nest_level = nest_level
-        self.data = data.strip()
-
-    def is_ancestor(self, potential_ancestor):
-        """ Useful to prevent accidentally double counting """
-        nextpar = self.parent
-        while nextpar is not None:
-            if nextpar == potential_ancestor:
-                return True
-            nextpar = nextpar.parent
-
-    def get_last_child(self):
-        return self.children[-1]
-
-    def add_child(self, ch):
-        assert ch.nest_level - 2 == self.nest_level, "CHILD ADDED WITH INCORRECT NEST LEVEL"
-        self.children.append(ch)
-
-    def get_root(self):
-        c = self
-        while c.parent != None:
-            c = c.parent
-        return c
-
-    def __repr__(self):
-        return " " * self.nest_level + self.data
-
-    def __str__(self):
-        return self.__repr__()
-
-    def print_tree(self):
-        """ DFS to print the full tree as it appears in the pt-pwr output """
-        visit = [self]
-        while visit != []:
-            curr = visit.pop(0)
-            print curr
-            visit = curr.children + visit
+from powertree import *
+import re
 
 
-## two spaces = one indent level in the log
 
-def start_line_match(linesarr, ind):
-    l1 = "Hierarchy                             Power    Power    Power     Power    %"
-    l2 = "--------------------------------------------------------------------------------"
-    return l1 in linesarr[ind] and l2 in linesarr[ind+1]
-
-def get_line_indent_level(line):
-    return len(line) - len(line.lstrip(' '))
-
-
-def log_to_tree(pt_pwr_file):
-    """ Build a Tree from the pt-pwr output """
-    f = open(pt_pwr_file, 'r')
-    g = f.readlines()
-    f.close()
-
-    removefront = 0
-    for x in xrange(len(g)):
-        if start_line_match(g, x):
-            removefront = x + 2
-            break
-
-    # g now consists only of the power info, remove the top of the file and 
-    # the last line containing only "1"
-    g = g[removefront : -1]
-
-    # now start actually processing the data into a tree
-    current = None
-
-    for line in g:
-        indent = get_line_indent_level(line)
-        if current == None:
-            current = TreeNode(None, indent, line)
-        else:
-            # here, compare the indent level to current and decide what to do
-            # compare is always the last node added
-            if indent == current.nest_level:
-                n = TreeNode(current.parent, indent, line)
-                current.parent.add_child(n)
-                current = n
-            elif indent == current.nest_level + 2:
-                n = TreeNode(current, indent, line)
-                current.add_child(n)
-                current = n
-            else:
-                # here, we're "unindenting"
-                while current.nest_level != indent:
-                    current = current.parent
-                n = TreeNode(current.parent, indent, line)
-                current.parent.add_child(n)
-                current = n
+lines_to_collect = {
+        'Top': ["Top"],
+        'Tile': ["RocketTile (RocketTile)"],
+        'Hwacha': ["Hwacha (Hwacha)"],
+        'frontend': ["rocc (RoCCUnit)", "icache (HwachaFrontend)", "VRU (VRU)", "scalar (ScalarUnit)"],
+        'func_unit': ["ALUSlice_", "FMASlice", "IMulSlice", "FCmpSlice", "FConvSlice", "FDivSlice", "IDivSlice"],
+        'mem': ["vxu_dcc", "vmu (VMU)"], # double counting handled below
+        'control': ["vxu_exp (Expander)", "ctrl (LaneCtrl)", "vxu_seq (LaneSequencer)", "mseq (MasterSequencer)"],
+        'banks': ["rf (BankRegfile"],
+      }
 
 
-    return current.get_root()
+
+def add_powerdata(x, y):
+    res = PowerData()
+    res.name = x.name + "+" + y.name
+    res.int_power = x.int_power + y.int_power
+    res.switch_power = x.switch_power + y.switch_power
+    res.leak_power = x.leak_power + y.leak_power
+    res.total_power = x.total_power + y.total_power
+    res.percent = x.percent + y.percent
+    res.origdata = "Not constructed from Line"
+    return res
+
+def sub_powerdata(x, y):
+    res = PowerData()
+    res.name = x.name + "-(" + y.name + ")"
+    res.int_power = x.int_power - y.int_power
+    res.switch_power = x.switch_power - y.switch_power
+    res.leak_power = x.leak_power - y.leak_power
+    res.total_power = x.total_power - y.total_power
+    res.percent = x.percent - y.percent
+    res.origdata = "Not constructed from Line"
+    return res
+
+
+
+def n_to_n_ancestor_check(res):
+    """ check if we're double counting """
+    double_counted = []
+    for x in xrange(len(res)):
+        for y in xrange(len(res)):
+            if res[x].is_ancestor(res[y]):
+                print str(res[y].data.name) + " is ancestor of " + str(res[x].data.name)
+                double_counted.append(res[x])
+    return double_counted
+
+def lit_to_reg(lit):
+    """ assume the above literals to search for are:
+    1) starting at beginning of line
+    2) should be escaped
+    """
+    return "^" + re.escape(lit)
 
 if __name__ == '__main__':
     l = log_to_tree(sys.argv[1])
-    l.print_tree()
+    #l.print_tree()
+
+    all_item = []
+    for x in lines_to_collect.keys():
+        for y in lines_to_collect[x]:
+            all_item += l.search(lit_to_reg(y))
+
+    print "Printing any overlaps below:\n------"
+    n_to_n_ancestor_check(all_item)
+    print "------\nPrinted any overlaps above."
+
+    hwachachunks = ['frontend', 'func_unit', 'mem', 'control', 'banks']
+    hwachapieces = []
+    for k in hwachachunks:
+        for y in lines_to_collect[k]:
+            r = l.search(lit_to_reg(y))
+            if r == []:
+                print "ERR " + y + " Not found"
+            hwachapieces += r
+
+    dat = map(lambda x: x.data, hwachapieces)
+    a = reduce(add_powerdata, dat)
+    print a
+    print l.search(lit_to_reg("Hwacha (Hwacha)"))
+    double_counted = n_to_n_ancestor_check(hwachapieces)
+    dc = map(lambda x: x.data, double_counted)
+    sum_sub = reduce(add_powerdata, dc)
+    print double_counted
+    print sum_sub
+    out = sub_powerdata(a, sum_sub)
+    print out
+    print l.search(lit_to_reg("Hwacha (Hwacha)"))
+
+
+
