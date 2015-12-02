@@ -89,12 +89,25 @@ class TreeNode:
         visit = [self]
         while visit != []:
             curr = visit.pop(0)
-            #if query in curr.data.name:
-            #    collect.append(curr)
             if re.search(query, curr.data.name) is not None:
                 collect.append(curr)
             visit = curr.children + visit
         return collect
+
+    def child_prune_search(self, query):
+        """ search """
+        collect = []
+        visit = [self]
+        while visit != []:
+            curr = visit.pop(0)
+            if re.search(query, curr.data.name) is not None:
+                collect.append(curr)
+            else:
+                # on a match, we do not search any children to avoid double counting
+                visit = curr.children + visit
+        print collect
+        return collect
+
 
 ## two spaces = one indent level in the log
 
