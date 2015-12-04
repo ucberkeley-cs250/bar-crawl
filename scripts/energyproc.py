@@ -10,7 +10,6 @@ designs = ['vlsi-l1-b4-lov-pt', 'vlsi-l1-b4-hov-pt']
 
 benchmarks = filter(lambda x: "power" in x, os.listdir(designs[0]))
 
-
 #designs = ['vlsi-l1-b4-hov-pt']
 
 #benchmarks = ['dfilter.riscv.power.avg.max.report']
@@ -88,6 +87,12 @@ if __name__ == '__main__':
 
     for des in designs:
         for bench in benchmarks:
+            """ get perf """
+            pfile = open(des + "/" + bench.split(".power.")[0]+".out", 'r')
+            cycleline = filter(lambda x: "cycle = " in x, pfile.readlines())
+            pfile.close()
+            benchmark_time = float(cycleline[0].split("=")[1].strip())/1000000000.0 # cycles to s @ 1ghz
+
             print des + "/" + bench
             hwacha_collectresult = {
                 'Scalar + Frontend': [],
@@ -171,8 +176,8 @@ if __name__ == '__main__':
             outdata = des + "," + bench + ","
             for x in final_outputs.keys():
                 outheader += x + ","
-                outdata += str(final_outputs[x]) + ","
-            
+                outdata += str(final_outputs[x]*benchmark_time) + ","
+            print benchmark_time 
             if first:
                 csv.write(outheader + "\n")
                 first = False
