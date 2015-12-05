@@ -187,7 +187,18 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
 
     return rs
 
-sampleemulator = "./emulator-Top-{} +dramsim +max-cycles=100000000 +verbose +loadmem={}/tests-installs/{}/{}/{}.hex none 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+sampleemulator = "./emulator-Top-{} +dramsim +max-cycles=100000000 +verbose +loadmem={}/tests-installs/{}/{}/{}.hex none 2>&1 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+
+
+def extract_cycles(test_type, test_to_run):
+    if "benchmarks" in test_type:
+        q = local("grep -r 'cycle = ' ../{}.out".format(test_to_run), capture=True)
+        cyclecount = q.split("=")[1].strip()
+    else:
+        q = local("grep -r 'C0: ' ../{}.out | tail -n 1".format(test_to_run), capture=True)
+        cyclecount = q.stdout.split()[1]
+    return cyclecount
+
 
 def emulator(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
@@ -197,9 +208,9 @@ def emulator(design_name, test_to_run, jobinfo, userjobconfig):
         res = local(sampleemulator.format(design_name, userjobconfig.install_dir, userjobconfig.hashes['riscv-tests'], test_type, test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
-        q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
+        cyclecount = extract_cycles(test_type, test_to_run)
         # return "PASS" and # of cycles
-        return ["PASS", q.stdout.split()[2]]
+        return ["PASS", cyclecount]
 
 # 5 min timeout per test
 @app.task(bind=True, soft_time_limit=3600*24)
@@ -210,7 +221,7 @@ def emulatortest(self, design_name, testname, jobinfo, userjobconfig):
     except SoftTimeLimitExceeded:
         return limit_exceeded()
 
-samplevcs = "cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem={}/tests-installs/{}/{}/{}.hex 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+samplevcs = "cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem={}/tests-installs/{}/{}/{}.hex 2>&1 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
 
 def vsim(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
@@ -221,9 +232,9 @@ def vsim(design_name, test_to_run, jobinfo, userjobconfig):
         res = local(samplevcs.format(design_name, userjobconfig.install_dir, userjobconfig.hashes['riscv-tests'], test_type, test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
-        q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
+        cyclecount = extract_cycles(test_type, test_to_run)
         # return "PASS" and # of cycles
-        return ["PASS", q.stdout.split()[1]]
+        return ["PASS", cyclecount]
 
 # 5 min timeout per test
 @app.task(bind=True, soft_time_limit=3600*24)
@@ -234,7 +245,7 @@ def vsimtest(self, design_name, testname, jobinfo, userjobconfig):
     except SoftTimeLimitExceeded:
         return limit_exceeded()
 
-samplevcs_sim_rtl = 'cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem={}/tests-installs/{}/{}/{}.hex 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]'
+samplevcs_sim_rtl = 'cd . && ./simv-Top-{} -q +ntb_random_seed_automatic +dramsim +verbose +max-cycles=100000000 +loadmem={}/tests-installs/{}/{}/{}.hex 2>&1 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]'
 
 def vcs_sim_rtl(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
@@ -244,9 +255,9 @@ def vcs_sim_rtl(design_name, test_to_run, jobinfo, userjobconfig):
         res = local(samplevcs_sim_rtl.format(design_name, userjobconfig.install_dir, userjobconfig.hashes['riscv-tests'], test_type, test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
-        q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
+        cyclecount = extract_cycles(test_type, test_to_run)
         # return "PASS" and # of cycles
-        return ["PASS", q.stdout.split()[1]]
+        return ["PASS", cyclecount]
 
 # 5 min timeout per test
 @app.task(bind=True, soft_time_limit=3600*24)
@@ -258,7 +269,7 @@ def vcs_sim_rtl_test(self, design_name, testname, jobinfo, userjobconfig):
         return limit_exceeded()
 
 
-samplevcs_sim_gl_syn = "cd . && ./simv-{} -ucli -do +run.tcl +dramsim +verbose +max-cycles=100000000 +loadmem={}/tests-installs/{}/{}/{}.hex 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+samplevcs_sim_gl_syn = "cd . && ./simv-{} -ucli -do +run.tcl +dramsim +verbose +max-cycles=100000000 +loadmem={}/tests-installs/{}/{}/{}.hex 2>&1 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
 
 def vcs_sim_gl_syn(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
@@ -268,9 +279,9 @@ def vcs_sim_gl_syn(design_name, test_to_run, jobinfo, userjobconfig):
         res = local(samplevcs_sim_gl_syn.format(design_name,userjobconfig.install_dir, userjobconfig.hashes['riscv-tests'], test_type, test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
-        q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
+        cyclecount = extract_cycles(test_type, test_to_run)
         # return "PASS" and # of cycles
-        return ["PASS", q.stdout.split()[1]]
+        return ["PASS", cyclecount]
 
 # no time-limit on gl-syn
 @app.task(bind=True)
@@ -282,7 +293,7 @@ def vcs_sim_gl_syn_test(self, design_name, testname, jobinfo, userjobconfig):
         return limit_exceeded()
 
 
-samplevcs_sim_gl_par = "cd . && ./simv-{} -ucli -do +run.tcl +dramsim +verbose +max-cycles=100000000 +loadmem={}/tests-installs/{}/{}/{}.hex 3>&1 1>&2 2>&3 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
+samplevcs_sim_gl_par = "cd . && ./simv-{} -ucli -do +run.tcl +dramsim +verbose +max-cycles=100000000 +loadmem={}/tests-installs/{}/{}/{}.hex 2>&1 | spike-dasm --extension=hwacha > ../{}.out && [ $PIPESTATUS -eq 0 ]"
 
 def vcs_sim_gl_par(design_name, test_to_run, jobinfo, userjobconfig):
     """ run a test """
@@ -292,9 +303,9 @@ def vcs_sim_gl_par(design_name, test_to_run, jobinfo, userjobconfig):
         res = local(samplevcs_sim_gl_par.format(design_name,userjobconfig.install_dir, userjobconfig.hashes['riscv-tests'], test_type, test_to_run, test_to_run), shell='/bin/bash')
         if res.failed:
             return "FAIL"
-        q = local("tail -n 1 ../{}.out".format(test_to_run), capture=True)
+        cyclecount = extract_cycles(test_type, test_to_run)
         # return "PASS" and # of cycles
-        return ["PASS", q.stdout.split()[1]]
+        return ["PASS", cyclecount]
 
 # no time-limit on gl-par
 @app.task(bind=True)
