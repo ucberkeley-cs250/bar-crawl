@@ -13,6 +13,7 @@ from copy import copy
 
 app = Celery('tasks', backend='rpc://', broker=redis_conf_string)
 app.conf.CELERY_TIMEZONE = 'America/Los_Angeles'
+app.conf.CELERYD_PREFETCH_MULTIPLIER = 1
 
 class DebTask(Task):
     abstract = True
@@ -100,7 +101,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
     """ Run C++ emulator """
     if 'emulator' in userjobconfig.tests:
         for y in testslist:
-            rs.add(emulatortest.delay(design_name, y, jobinfo, userjobconfig))
+            rs.add(emulatortest.apply_async([design_name, y, jobinfo, userjobconfig], queue='test'))
 
 
     """ Run vsim """
@@ -116,7 +117,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
 
         # start vsim tasks
         for y in testslist:
-            rs.add(vsimtest.delay(design_name, y, jobinfo, userjobconfig))
+            rs.add(vsimtest.apply_async([design_name, y, jobinfo, userjobconfig], queue='test'))
 
 
     """ Run vcs-sim-rtl """
@@ -131,7 +132,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
             rl.local_logged('cp -r emulator/emulator/dramsim2_ini vcs-sim-rtl/vcs-sim-rtl/')
 
         for y in testslist:
-            rs.add(vcs_sim_rtl_test.delay(design_name, y, jobinfo, userjobconfig))
+            rs.add(vcs_sim_rtl_test.apply_async([design_name, y, jobinfo, userjobconfig], queue='test'))
 
     """ run dc-syn """
     if 'dc-syn' in userjobconfig.tests:
@@ -157,7 +158,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
             rl.local_logged('cp -r emulator/emulator/dramsim2_ini vcs-sim-gl-syn/vcs-sim-gl-syn/')
 
         for y in testslist:
-            rs.add(vcs_sim_gl_syn_test.delay(design_name, y, jobinfo, userjobconfig))
+            rs.add(vcs_sim_gl_syn_test.apply_async([design_name, y, jobinfo, userjobconfig], queue='test'))
 
     """ run icc-par """
     if 'icc-par' in userjobconfig.tests:
@@ -181,7 +182,7 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
             rl.local_logged('cp -r emulator/emulator/dramsim2_ini vcs-sim-gl-par/vcs-sim-gl-par/')
 
         for y in testslist:
-            rs.add(vcs_sim_gl_par_test.delay(design_name, y, jobinfo, userjobconfig))
+            rs.add(vcs_sim_gl_par_test.apply_async([design_name, y, jobinfo, userjobconfig], queue='test'))
 
     rl.clear_log() # clear the redis log list
 

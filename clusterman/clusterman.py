@@ -16,6 +16,7 @@ noa7fast = ['a8', 'a5', 'a6']
 med = ['boxboro', 'sandy', 'bridge', 'jktqos', 'jktgz', 'a20', 'a19']
 
 fbox = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12', 'f13', 'f14', 'f15', 'f16']
+#fbox = ['f15']
 
 very_slow = ['emerald']
 no_ecad = ['beckton']
@@ -38,8 +39,10 @@ def celery_master():
         local('ps -A | grep redis-server')
 
 
-pidfilename = 'clusterman/pid/' + h + '-1%h.pid'
-logfilename = 'clusterman/log/' + h + '-1%h.log'
+pidfilename_build = 'clusterman/pid/' + h + '-build%h.pid'
+logfilename_build = 'clusterman/log/' + h + '-build%h.log'
+pidfilename_test = 'clusterman/pid/' + h + '-test%h.pid'
+logfilename_test = 'clusterman/log/' + h + '-test%h.log'
 
 @parallel
 def celery_worker():
@@ -49,7 +52,8 @@ def celery_worker():
             # we should use -Ofair
             # see http://docs.celeryproject.org/en/latest/userguide/optimizing.html#prefork-pool-prefetch-settings
             # some tests may run for a long time
-            run('celery multi start ' + h + '-1 -E --pidfile=' + pidfilename +  ' --logfile=' + logfilename + ' -A tasks --purge -l INFO -Ofair -P processes -c 6')
+            run('celery multi start ' + h + '-build -E --pidfile=' + pidfilename_build +  ' --logfile=' + logfilename_build + ' -Q build -A tasks --purge -l INFO -Ofair -P processes -c 1')
+            run('celery multi start ' + h + '-test -E --pidfile=' + pidfilename_test +  ' --logfile=' + logfilename_test + ' -Q test -A tasks --purge -l INFO -Ofair -P processes -c 6')
 
 
 def celery_flower():
@@ -71,7 +75,8 @@ def restore_hosts():
 def celery_shutdown():
     with settings(warn_only=True):
         with cd(bar_crawl_dir):
-            run('celery multi stop ' + h + '-1 --pidfile=' + pidfilename)
+            run('celery multi stop ' + h + '-build --pidfile=' + pidfilename_build)
+            run('celery multi stop ' + h + '-test --pidfile=' + pidfilename_test)
             run('pkill python')
             run('pkill celery')
 
