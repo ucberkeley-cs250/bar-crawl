@@ -39,10 +39,10 @@ def celery_master():
         local('ps -A | grep redis-server')
 
 
-pidfilename_build = 'clusterman/pid/' + h + '-build%h.pid'
-logfilename_build = 'clusterman/log/' + h + '-build%h.log'
-pidfilename_test = 'clusterman/pid/' + h + '-test%h.pid'
-logfilename_test = 'clusterman/log/' + h + '-test%h.log'
+pidfilename_build = 'clusterman/pid/build-' + h + '%h.pid'
+logfilename_build = 'clusterman/log/build-' + h + '%h.log'
+pidfilename_test = 'clusterman/pid/test-' + h + '%h.pid'
+logfilename_test = 'clusterman/log/test-' + h + '%h.log'
 
 @parallel
 def celery_worker():
@@ -52,8 +52,8 @@ def celery_worker():
             # we should use -Ofair
             # see http://docs.celeryproject.org/en/latest/userguide/optimizing.html#prefork-pool-prefetch-settings
             # some tests may run for a long time
-            run('celery multi start ' + h + '-build -E --pidfile=' + pidfilename_build +  ' --logfile=' + logfilename_build + ' -Q build -A tasks --purge -l INFO -Ofair -P processes -c 1')
-            run('celery multi start ' + h + '-test -E --pidfile=' + pidfilename_test +  ' --logfile=' + logfilename_test + ' -Q test -A tasks --purge -l INFO -Ofair -P processes -c 6')
+            run('celery multi start build-' + h + ' -E --pidfile=' + pidfilename_build +  ' --logfile=' + logfilename_build + ' -Q build -A tasks --purge -l INFO -Ofair -P processes -c 1')
+            run('celery multi start test-' + h + ' -E --pidfile=' + pidfilename_test +  ' --logfile=' + logfilename_test + ' -Q test -A tasks --purge -l INFO -Ofair -P processes -c 6')
 
 
 def celery_flower():
@@ -75,8 +75,8 @@ def restore_hosts():
 def celery_shutdown():
     with settings(warn_only=True):
         with cd(bar_crawl_dir):
-            run('celery multi stop ' + h + '-build --pidfile=' + pidfilename_build)
-            run('celery multi stop ' + h + '-test --pidfile=' + pidfilename_test)
+            run('celery multi stop build-' + h + ' --pidfile=' + pidfilename_build)
+            run('celery multi stop test-' + h + ' --pidfile=' + pidfilename_test)
             run('pkill python')
             run('pkill celery')
 

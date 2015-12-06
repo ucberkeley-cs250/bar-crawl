@@ -15,6 +15,9 @@ app = Celery('tasks', backend='rpc://', broker=redis_conf_string)
 app.conf.CELERY_TIMEZONE = 'America/Los_Angeles'
 app.conf.CELERY_ACKS_LATE = True
 app.conf.CELERYD_PREFETCH_MULTIPLIER = 1
+# because we use late_acks, this must be set to a large value, longer than
+# the length of the longest task. set to 2 days here:
+app.conf.BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600 * 24 * 2}
 
 class DebTask(Task):
     abstract = True
