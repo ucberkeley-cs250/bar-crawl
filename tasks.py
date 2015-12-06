@@ -13,6 +13,7 @@ from copy import copy
 
 app = Celery('tasks', backend='rpc://', broker=redis_conf_string)
 app.conf.CELERY_TIMEZONE = 'America/Los_Angeles'
+app.conf.CELERY_ACKS_LATE = True
 app.conf.CELERYD_PREFETCH_MULTIPLIER = 1
 
 class DebTask(Task):
