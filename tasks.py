@@ -67,8 +67,8 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
         configs_dir = 'src/main/scala/config'
         rl.local_logged('mkdir -p ' + configs_dir)
         rl.local_logged('cp ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + userjobconfig.CONF + '.scala ' + configs_dir + '/')
-    with lcd(rc_dir + '/vlsi'):
-        rl.local_logged('git submodule update --init --recursive')
+        rl.local_logged('rm -rf vlsi')
+        rl.local_logged('cp -R /scratch/%s/%s vlsi' % (userjobconfig.username, userjobconfig.vlsi_dir))
 
     # now, apply patches
     apply_recursive_patches(userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/patches', rc_dir)
@@ -143,11 +143,11 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
         with lcd(rc_dir + '/vlsi'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
             rl2.local_logged('make dc 2>&1')
         # vlsi, dc
-        with lcd(rc_dir + '/vlsi/dc-syn'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
-            # TODO: what does -jN do here?
-            #rl2.local_logged('make 2>&1')
-            rl.local_logged('cp -r current-dc/reports ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
-            rl.local_logged('cp -r current-dc/results ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
+        #with lcd(rc_dir + '/vlsi/dc-syn'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
+        #    # TODO: what does -jN do here?
+        #    #rl2.local_logged('make 2>&1')
+        #    rl.local_logged('cp -r current-dc/reports ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
+        #    rl.local_logged('cp -r current-dc/results ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/dc-syn/')
 
     rl.clear_log() # if we made it this far, clear the redis log list
 
@@ -169,11 +169,11 @@ def compile_and_copy(self, design_name, hashes, jobinfo, userjobconfig):
         with lcd(rc_dir + '/vlsi'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
             rl2.local_logged('make icc 2>&1')
         # vlsi, icc
-        with lcd(rc_dir + '/vlsi/icc-par'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
-            # TODO: what does -jN do here?
-            #rl2.local_logged('make 2>&1')
-            rl.local_logged('cp -r current-icc/reports ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/icc-par/')
-            rl.local_logged('cp -r current-icc/results ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/icc-par/')
+        #with lcd(rc_dir + '/vlsi/icc-par'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):
+        #    # TODO: what does -jN do here?
+        #    #rl2.local_logged('make 2>&1')
+        #    rl.local_logged('cp -r current-icc/reports ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/icc-par/')
+        #    rl.local_logged('cp -r current-icc/results ' + userjobconfig.distribute_rocket_chip_loc + '/' + jobinfo + '/' + design_name + '/icc-par/')
 
     if 'vcs-sim-gl-par' in userjobconfig.tests:
         with lcd(rc_dir + '/vlsi/vcs-sim-gl-par'), shell_env(**shell_env_args_conf), prefix('source ' + vlsi_bashrc):

@@ -75,7 +75,7 @@ vlsi_bashrc = '/nscratch/sagark/vlsi2.bashrc'
 # it's a good idea to put this on a machine with lots of RAM
 redis_conf = {
         'host': 'fbox.millennium.berkeley.edu',
-        'port': 6379,
+        'port': 6380,
         'db': 0
 }
 redis_conf_string = 'redis://' + redis_conf['host'] + ":" + str(redis_conf['port'])

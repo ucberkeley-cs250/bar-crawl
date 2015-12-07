@@ -11,6 +11,7 @@ sys.path.insert(0,'..')
 from crawlutils import get_hash
 
 # list of hosts to run remote commands on
+abuild = ['a1', 'a2']
 fast = ['a7', 'a8', 'a5', 'a6']
 noa7fast = ['a8', 'a5', 'a6']
 med = ['boxboro', 'sandy', 'bridge', 'jktqos', 'jktgz', 'a20', 'a19']
@@ -21,7 +22,8 @@ fbox = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12
 very_slow = ['emerald']
 no_ecad = ['beckton']
 
-env.hosts = fbox #+ ['boxboro']
+env.hosts = abuild
+#env.hosts = fbox
 backuphosts = env.hosts
 
 bar_crawl_dir = os.getcwd() + "/.."
@@ -53,14 +55,14 @@ def celery_worker():
             # see http://docs.celeryproject.org/en/latest/userguide/optimizing.html#prefork-pool-prefetch-settings
             # some tests may run for a long time
             run('celery multi start build-' + h + ' -E --pidfile=' + pidfilename_build +  ' --logfile=' + logfilename_build + ' -Q build -A tasks --purge -l INFO -Ofair -P processes -c 1')
-            run('celery multi start test-' + h + ' -E --pidfile=' + pidfilename_test +  ' --logfile=' + logfilename_test + ' -Q test -A tasks --purge -l INFO -Ofair -P processes -c 6')
+            #run('celery multi start test-' + h + ' -E --pidfile=' + pidfilename_test +  ' --logfile=' + logfilename_test + ' -Q test -A tasks --purge -l INFO -Ofair -P processes -c 6')
 
 
 def celery_flower():
     with lcd(bar_crawl_dir):
         print("waiting 5s for workers to settle")
         time.sleep(5)
-        local('screen -A -m -d -S flower flower -A tasks --port=8080 --persistent &')
+        local('screen -A -m -d -S flower flower -A tasks --port=8888 --persistent &')
 
 def one_host():
     env.hosts = []

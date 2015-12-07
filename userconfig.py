@@ -63,6 +63,7 @@ class UserJobConfig:
         # copy of rocket-chip and the tests you intend to run
         self.rocket_chip_location = config.get('urls', 'rocket_chip_url')
         self.tests_location = config.get('urls', 'tests_url')
+        self.vlsi_dir = config.get('urls', 'vlsi_dir')
 
         # If you want, you can set a tag here to make your output directory
         # easier to identify. this tag will be tacked onto the end of the job
