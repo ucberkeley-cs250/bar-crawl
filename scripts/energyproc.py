@@ -6,9 +6,12 @@ from powertree import *
 import re
 import os
 
-designs = ['vlsi-l1-b4-lov-pt', 'vlsi-l1-b4-hov-pt']
+prefix = "/nscratch/yunsup/isca2016-take2/"
 
-benchmarks = filter(lambda x: "power" in x, os.listdir(designs[0]))
+
+designs = ['hov', 'lov']
+
+
 
 #designs = ['vlsi-l1-b4-hov-pt']
 
@@ -25,11 +28,12 @@ top_lines_to_collect = {
 
 
 hwacha_lines_to_collect = {
-        'Scalar + Frontend': ["rocc (RoCCUnit)", "icache (HwachaFrontend)", "VRU (VRU)", "scalar (ScalarUnit)"],
-        'Functional Units': ["ALUSlice_", "FMASlice", "IMulSlice", "FCmpSlice", "FConvSlice", "FDivSlice", "IDivSlice"],
-        'VMU': ["vxu_dcc", "vmu (VMU)"], # double counting handled below
-        'Control': ["vxu_exp (Expander)", "ctrl (LaneCtrl)", "vxu_seq (LaneSequencer)", "mseq (MasterSequencer)"],
         'Banks': ["rf (BankRegfile"],
+        'Functional Units': ["ALUSlice_", "FMASlice", "IMulSlice", "FCmpSlice", "FConvSlice", "FDivSlice", "IDivSlice"],
+        'Lane Other': ["VectorUnit (VectorUnit)"],
+        'Scalar + Frontend': ["rocc (RoCCUnit)", "icache (HwachaFrontend)", "VRU (VRU)", "scalar (ScalarUnit)"],
+#        'VMU': ["vxu_dcc", "vmu"], # double counting handled below
+#        'Control': ["vxu", "ctrl", "vxu_seq (LaneSequencer)", "mseq (MasterSequencer)"],
       }
 
 #for x in hwacha_lines_to_collect.keys():
@@ -86,30 +90,35 @@ if __name__ == '__main__':
     first = True
 
     for des in designs:
+
+        benchmarks = filter(lambda x: "power" in x, os.listdir(prefix + "/" + des))
         for bench in benchmarks:
+            print des, bench
+
+
             """ get perf """
-            pfile = open(des + "/" + bench.split(".power.")[0]+".out", 'r')
+            pfile = open(prefix + "/" + des + "/" + bench.split(".power.")[0]+".out", 'r')
             cycleline = filter(lambda x: "cycle = " in x, pfile.readlines())
             pfile.close()
             benchmark_time = float(cycleline[0].split("=")[1].strip())/1000000000.0 # cycles to s @ 1ghz
 
             print des + "/" + bench
+
             hwacha_collectresult = {
-                'Scalar + Frontend': [],
-                'Functional Units': [],
-                'VMU': [], # double counting handled below
-                'Control': [],
                 'Banks': [],
+                'Functional Units': [],
+                'Lane Other': [],
+                'Scalar + Frontend': [],
             }
 
             top_collectresult = dict()
 
             final_outputs = {
-                'Hwacha Interconnect' : None,
+                'Hwacha Other' : None,
                 'Rocket + L1' : None, # RocketTile - Hwacha
                 'L2' : None, # Top - Tile
             }
-            l = log_to_tree(des + "/" + bench)
+            l = log_to_tree(prefix + "/" + des + "/" + bench)
 
             hwacha_item = []
             for x in hwacha_lines_to_collect.keys():
@@ -136,7 +145,7 @@ if __name__ == '__main__':
             ## VMU, so fix it
             dc = map(lambda x: x.data, double_counted)
             sum_sub = reduce(add_powerdata, dc)
-            hwacha_collectresult['VMU'] = sub_powerdata(hwacha_collectresult['VMU'], sum_sub)
+            hwacha_collectresult['Lane Other'] = sub_powerdata(hwacha_collectresult['Lane Other'], sum_sub)
             double_counted = []
 
 
@@ -147,7 +156,7 @@ if __name__ == '__main__':
             print collected_sum
             real_hwacha_tot = l.child_prune_search(lit_to_reg("Hwacha (Hwacha)"))[0].data
             print hwacha_collectresult
-            final_outputs['Hwacha Interconnect'] = sub_powerdata(real_hwacha_tot, collected_sum)
+            final_outputs['Hwacha Other'] = sub_powerdata(real_hwacha_tot, collected_sum)
             for x in hwacha_collectresult.keys():
                 final_outputs[x] = hwacha_collectresult[x]
 
@@ -158,6 +167,7 @@ if __name__ == '__main__':
             final_outputs['Rocket + L1'] = sub_powerdata(top_collectresult['Tile'], top_collectresult['Hwacha'])
             final_outputs['L2'] = sub_powerdata(top_collectresult['Top'], top_collectresult['Tile'])
 
+            print final_outputs
 
             tot = 0
             for x in final_outputs.keys():
@@ -182,4 +192,6 @@ if __name__ == '__main__':
                 csv.write(outheader + "\n")
                 first = False
             csv.write(outdata + "\n")
+            #break
+        #break
     csv.close()
