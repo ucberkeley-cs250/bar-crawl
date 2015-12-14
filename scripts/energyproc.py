@@ -31,7 +31,7 @@ hwacha_lines_to_collect = {
         'Banks': ["rf (BankRegfile"],
         'Functional Units': ["ALUSlice_", "FMASlice", "IMulSlice", "FCmpSlice", "FConvSlice", "FDivSlice", "IDivSlice"],
         'Lane Other': ["VectorUnit (VectorUnit)"],
-        'Scalar + Frontend': ["rocc (RoCCUnit)", "icache (HwachaFrontend)", "VRU (VRU)", "scalar (ScalarUnit)"],
+#        'Scalar + Frontend': ["rocc (RoCCUnit)", "icache (HwachaFrontend)", "VRU (VRU)", "scalar (ScalarUnit)"],
 #        'VMU': ["vxu_dcc", "vmu"], # double counting handled below
 #        'Control': ["vxu", "ctrl", "vxu_seq (LaneSequencer)", "mseq (MasterSequencer)"],
       }
@@ -87,6 +87,7 @@ def lit_to_reg(lit):
 
 if __name__ == '__main__':
     csv = open('output.csv', 'w')
+    perfcsv = open('perf_output.csv', 'w')
     first = True
 
     for des in designs:
@@ -108,7 +109,7 @@ if __name__ == '__main__':
                 'Banks': [],
                 'Functional Units': [],
                 'Lane Other': [],
-                'Scalar + Frontend': [],
+#                'Scalar + Frontend': [],
             }
 
             top_collectresult = dict()
@@ -184,7 +185,13 @@ if __name__ == '__main__':
 
             outheader = "Design,Benchmark,"
             outdata = des + "," + bench + ","
-            for x in final_outputs.keys():
+
+            keyorder = ["Leakage", "L2", "Rocket + L1", "Hwacha Other", "Banks", "Lane Other", "Functional Units"]
+
+            perfcsv.write(outheader + "Runtime (ns)\n")
+            perfcsv.write(outdata + str(benchmark_time) + "\n")
+
+            for x in keyorder:
                 outheader += x + ","
                 outdata += str(final_outputs[x]*benchmark_time) + ","
             print benchmark_time 
@@ -195,3 +202,4 @@ if __name__ == '__main__':
             #break
         #break
     csv.close()
+    perfcsv.close()
